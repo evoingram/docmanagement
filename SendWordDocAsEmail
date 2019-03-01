@@ -1,6 +1,6 @@
 
 
-Function SendWordDocAsEmail(vCHTopic As String, sSubject As String, _
+Function SendWordDocAsEmail(sCHTopic As String, sSubject As String, _
         Optional sAttachment1 As String, Optional sAttachment2 As String, _
         Optional sAttachment3 As String, Optional sAttachment4 As String)
 On Error Resume Next
@@ -8,7 +8,7 @@ On Error Resume Next
 Dim sTemplateAddress As String, sCourtDatesID As String
 Dim oOutlookApp As Object, oOutlookMail As Object, oWordApp As Object, oWordEditor As Object, oWordDoc As Object
 sCourtDatesID = Forms![NewMainMenu]![ProcessJobSubformNMM].Form![JobNumberField]
-sTemplateAddress = "T:\In Progress\" & sCourtDatesID & "\" & sCourtDatesID & "-" & vCHTopic & ".docx"
+sTemplateAddress = "T:\In Progress\" & sCourtDatesID & "\" & sCourtDatesID & "-" & sCHTopic & ".docx"
 Set oOutlookApp = CreateObject("Outlook.Application")
 Set oOutlookMail = oOutlookApp.CreateItem(0)
 Set oWordApp = CreateObject("Word.Application")
@@ -17,29 +17,32 @@ oWordDoc.Content.Copy
 oWordDoc.Close
 oWordApp.Quit
 Set oWordApp = Nothing
-    With oOutlookMail
-        .To = ""
-        .CC = ""
-        .BCC = ""
-        .BodyFormat = olFormatRichText
-        .Subject = sSubject
-        Set oWordEditor = .GetInspector.WordEditor
-        oWordEditor.Content.Paste
-        .Display
-        If sAttachment1 = "" And sAttachment2 = "" And sAttachment3 = "" And sAttachment4 = "" Then GoTo LoopExit
-        If Not sAttachment1 = "" And sAttachment2 = "" And sAttachment3 = "" And sAttachment4 = "" Then GoTo At4
-        If Not sAttachment1 = "" And sAttachment2 = "" And sAttachment3 = "" Then GoTo At3
-        If Not sAttachment1 = "" And sAttachment2 = "" Then GoTo At2
-        If Not sAttachment1 = "" Then GoTo At1
+With oOutlookMail
+	.To = ""
+	.CC = ""
+	.BCC = ""
+	.BodyFormat = olFormatRichText
+	.Subject = sSubject
+	
+	Set oWordEditor = .GetInspector.WordEditor
+	oWordEditor.Content.Paste
+	
+	.Display
+	
+	If sAttachment1 = "" And sAttachment2 = "" And sAttachment3 = "" And sAttachment4 = "" Then GoTo LoopExit
+	If Not sAttachment1 = "" And sAttachment2 = "" And sAttachment3 = "" And sAttachment4 = "" Then GoTo At4
+	If Not sAttachment1 = "" And sAttachment2 = "" And sAttachment3 = "" Then GoTo At3
+	If Not sAttachment1 = "" And sAttachment2 = "" Then GoTo At2
+	If Not sAttachment1 = "" Then GoTo At1
 At4:
-        .Attachments.Add (sAttachment4)
+	.Attachments.Add (sAttachment4)
 At3:
-        .Attachments.Add (sAttachment3)
+	.Attachments.Add (sAttachment3)
 At2:
-        .Attachments.Add (sAttachment2)
+	.Attachments.Add (sAttachment2)
 At1:
-        .Attachments.Add (sAttachment1)
+	.Attachments.Add (sAttachment1)
 LoopExit:
-    End With
+End With
     
 End Function
