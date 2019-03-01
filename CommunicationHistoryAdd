@@ -1,0 +1,18 @@
+Function CommunicationHistoryAdd(sDocumentName As String)
+'adds entry to CommunicationHistory table
+'Call CommunicationHistoryAdd(sDocumentName)
+Dim dbTranscription As DAO.Database
+Dim rstCHAdd As DAO.Recordset
+Dim sDocumentHyperlink As String, sDocumentPath As String, sCourtDatesID As String
+sCourtDatesID = Forms![NewMainMenu]![ProcessJobSubformNMM].Form![JobNumberField]
+sDocumentPath = "T:\In Progress\" & sCourtDatesID & "\" & sCourtDatesID & "-" & sDocumentName & ".docx"
+Set dbTranscription = CurrentDb
+sDocumentHyperlink = sCourtDatesID & "-" & sDocumentName & "#" & sDocumentPath & "#"
+Set rstCHAdd = dbTranscription.OpenRecordset("CommunicationHistory")
+rstCHAdd.AddNew
+    rstCHAdd("FileHyperlink").Value = sDocumentHyperlink
+    rstCHAdd("DateCreated").Value = Now
+    rstCHAdd("CourtDatesID").Value = sCourtDatesID
+rstCHAdd.Update
+rstCHAdd.Close
+End Function
