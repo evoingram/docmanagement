@@ -1,0 +1,130 @@
+Function AddAQCExamStyle()
+'============================================================================
+' Name        : AddAQCExamStyle
+' Author      : Erica L Ingram
+' Copyright   : 2019, A Quo Co.
+' Call command: Call AddAQCExamStyle
+' Description : finds specific phrases in activedocument(transcript) and applies a specific style
+'============================================================================
+On Error Resume Next
+ActiveDocument.Application.Selection.Find.ClearFormatting
+ActiveDocument.Application.Selection.Find.Replacement.ClearFormatting
+
+
+ActiveDocument.Application.Selection.Find.Replacement.style = ActiveDocument.Styles("Heading 2")
+With ActiveDocument.Application.Selection.Find
+    .Text = "DIRECT EXAMINATION"
+    .Replacement.Text = "DIRECT EXAMINATION"
+    .Forward = True
+    .Wrap = wdFindContinue
+    .Format = True
+    .MatchCase = True
+    .MatchWholeWord = False
+    .MatchWildcards = False
+    .MatchSoundsLike = False
+    .MatchAllWordForms = False
+End With
+ActiveDocument.Application.Selection.Find.Execute Replace:=wdReplaceAll
+
+
+ActiveDocument.Application.Selection.Find.ClearFormatting
+ActiveDocument.Application.Selection.Find.Replacement.ClearFormatting
+
+
+ActiveDocument.Application.Selection.Find.Replacement.style = ActiveDocument.Styles("Heading 2")
+With ActiveDocument.Application.Selection.Find
+    .Text = "CROSS-EXAMINATION"
+    .Replacement.Text = "CROSS-EXAMINATION"
+    .Forward = True
+    .Wrap = wdFindContinue
+    .Format = True
+    .MatchCase = True
+    .MatchWholeWord = False
+    .MatchWildcards = False
+    .MatchSoundsLike = False
+    .MatchAllWordForms = False
+End With
+ActiveDocument.Application.Selection.Find.Execute Replace:=wdReplaceAll
+
+
+ActiveDocument.Application.Selection.Find.ClearFormatting
+ActiveDocument.Application.Selection.Find.Replacement.ClearFormatting
+
+
+ActiveDocument.Application.Selection.Find.Replacement.style = ActiveDocument.Styles("Heading 2")
+With ActiveDocument.Application.Selection.Find
+    .Text = "REDIRECT EXAMINATION"
+    .Replacement.Text = "REDIRECT EXAMINATION"
+    .Forward = True
+    .Wrap = wdFindContinue
+    .Format = True
+    .MatchCase = True
+    .MatchWholeWord = False
+    .MatchWildcards = False
+    .MatchSoundsLike = False
+    .MatchAllWordForms = False
+End With
+ActiveDocument.Application.Selection.Find.Execute Replace:=wdReplaceAll
+
+
+ActiveDocument.Application.Selection.Find.ClearFormatting
+ActiveDocument.Application.Selection.Find.Replacement.ClearFormatting
+
+
+ActiveDocument.Application.Selection.Find.Replacement.style = ActiveDocument.Styles("Heading 2")
+With ActiveDocument.Application.Selection.Find
+    .Text = "RECROSS-EXAMINATION"
+    .Replacement.Text = "RECROSS-EXAMINATION"
+    .Forward = True
+    .Wrap = wdFindContinue
+    .Format = True
+    .MatchCase = True
+    .MatchWholeWord = False
+    .MatchWildcards = False
+    .MatchSoundsLike = False
+    .MatchAllWordForms = False
+End With
+ActiveDocument.Application.Selection.Find.Execute Replace:=wdReplaceAll
+
+
+ActiveDocument.Application.Selection.Find.ClearFormatting
+ActiveDocument.Application.Selection.Find.Replacement.ClearFormatting
+
+
+ActiveDocument.Application.Selection.Find.Replacement.style = ActiveDocument.Styles("Heading 2")
+With ActiveDocument.Application.Selection.Find
+    .Text = "FURTHER REDIRECT EXAMINATION"
+    .Replacement.Text = "FURTHER REDIRECT EXAMINATION"
+    .Forward = True
+    .Wrap = wdFindContinue
+    .Format = True
+    .MatchCase = True
+    .MatchWholeWord = False
+    .MatchWildcards = False
+    .MatchSoundsLike = False
+    .MatchAllWordForms = False
+End With
+ActiveDocument.Application.Selection.Find.Execute Replace:=wdReplaceAll
+
+
+ActiveDocument.Application.Selection.Find.ClearFormatting
+ActiveDocument.Application.Selection.Find.Replacement.ClearFormatting
+
+
+ActiveDocument.Application.Selection.Find.Replacement.style = ActiveDocument.Styles("Heading 2")
+With ActiveDocument.Application.Selection.Find
+    .Text = "FURTHER RECROSS-EXAMINATION"
+    .Replacement.Text = "FURTHER RECROSS-EXAMINATION"
+    .Forward = True
+    .Wrap = wdFindContinue
+    .Format = True
+    .MatchCase = True
+    .MatchWholeWord = False
+    .MatchWildcards = False
+    .MatchSoundsLike = False
+    .MatchAllWordForms = False
+End With
+ActiveDocument.Application.Selection.Find.Execute Replace:=wdReplaceAll
+
+
+End Function
