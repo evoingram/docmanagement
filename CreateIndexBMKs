@@ -1,0 +1,181 @@
+Function CreateIndexBMKs()
+'============================================================================
+' Name        : CreateIndexBMKs
+' Author      : Erica L Ingram
+' Copyright   : 2019, A Quo Co.
+' Call command: Call CreateIndexBMKs
+' Description : replaces #TOC_# notations in transcript with bookmarks and then places index at bookmarks
+'============================================================================
+On Error Resume Next
+Dim sBookmarkName As String, sFileName As String, sCourtDatesID As String
+Dim oWordApp As Object, oWordDoc As Object
+
+sCourtDatesID = Forms![NewMainMenu]![ProcessJobSubformNMM].Form![JobNumberField]
+sFileName = "T:\In Progress\" & sCourtDatesID & "\" & sCourtDatesID & "-CourtCover.docx"
+sBookmarkName = "IndexA"
+
+Set oWordApp = CreateObject("Word.Application")
+Set oWordDoc = oWordApp.Documents.Open(sFileName)
+oWordApp.Visible = False
+
+oWordDoc.Application.Selection.Find.ClearFormatting
+oWordDoc.Application.Selection.Find.Replacement.ClearFormatting
+With oWordDoc.Application.Selection.Find
+    .Text = "#TOCA#"
+    .Replacement.Text = ""
+    .Forward = True
+    .Wrap = wdFindContinue
+    .Format = False
+    .MatchCase = False
+    .MatchWholeWord = False
+    .MatchWildcards = False
+    .MatchSoundsLike = False
+    .MatchAllWordForms = False
+    .Execute
+    If .Forward = True Then
+        .Application.Selection.Collapse Direction:=wdCollapseStart
+    Else
+        .Application.Selection.Collapse Direction:=wdCollapseEnd
+    End If
+    .Execute Replace:=wdReplaceOne
+    If .Forward = True Then
+        .Application.Selection.Collapse Direction:=wdCollapseEnd
+    Else
+        .Application.Selection.Collapse Direction:=wdCollapseStart
+    End If
+    .Execute
+End With
+oWordDoc.bookmarks.Add Name:=sBookmarkName
+
+sBookmarkName = "IndexB"
+
+oWordDoc.Application.Selection.Find.ClearFormatting
+oWordDoc.Application.Selection.Find.Replacement.ClearFormatting
+With oWordDoc.Application.Selection.Find
+    .Text = "#TOCB#"
+    .Replacement.Text = ""
+    .Forward = True
+    .Wrap = wdFindContinue
+    .Format = False
+    .MatchCase = False
+    .MatchWholeWord = False
+    .MatchWildcards = False
+    .MatchSoundsLike = False
+    .MatchAllWordForms = False
+    .Execute
+    If .Forward = True Then
+        .Application.Selection.Collapse Direction:=wdCollapseStart
+    Else
+        .Application.Selection.Collapse Direction:=wdCollapseEnd
+    End If
+    .Execute Replace:=wdReplaceOne
+    If .Forward = True Then
+        .Application.Selection.Collapse Direction:=wdCollapseEnd
+    Else
+        .Application.Selection.Collapse Direction:=wdCollapseStart
+    End If
+    .Execute
+End With
+
+oWordDoc.bookmarks.Add Name:=sBookmarkName
+
+sBookmarkName = "IndexC"
+
+oWordDoc.Application.Selection.Find.ClearFormatting
+oWordDoc.Application.Selection.Find.Replacement.ClearFormatting
+With oWordDoc.Application.Selection.Find
+    .Text = "#TOCC#"
+    .Replacement.Text = ""
+    .Forward = True
+    .Wrap = wdFindContinue
+    .Format = False
+    .MatchCase = False
+    .MatchWholeWord = False
+    .MatchWildcards = False
+    .MatchSoundsLike = False
+    .MatchAllWordForms = False
+    .Execute
+    If .Forward = True Then
+        .Application.Selection.Collapse Direction:=wdCollapseStart
+    Else
+        .Application.Selection.Collapse Direction:=wdCollapseEnd
+    End If
+    .Execute Replace:=wdReplaceOne
+    If .Forward = True Then
+        .Application.Selection.Collapse Direction:=wdCollapseEnd
+    Else
+        .Application.Selection.Collapse Direction:=wdCollapseStart
+    End If
+    .Execute
+End With
+
+oWordDoc.bookmarks.Add Name:=sBookmarkName
+
+sBookmarkName = "IndexD"
+
+oWordDoc.Application.Selection.Find.ClearFormatting
+oWordDoc.Application.Selection.Find.Replacement.ClearFormatting
+With oWordDoc.Application.Selection.Find
+    .Text = "#TOCD#"
+    .Replacement.Text = ""
+    .Forward = True
+    .Wrap = wdFindContinue
+    .Format = False
+    .MatchCase = False
+    .MatchWholeWord = False
+    .MatchWildcards = False
+    .MatchSoundsLike = False
+    .MatchAllWordForms = False
+    .Execute
+    If .Forward = True Then
+        .Application.Selection.Collapse Direction:=wdCollapseStart
+    Else
+        .Application.Selection.Collapse Direction:=wdCollapseEnd
+    End If
+    .Execute Replace:=wdReplaceOne
+    If .Forward = True Then
+        .Application.Selection.Collapse Direction:=wdCollapseEnd
+    Else
+        .Application.Selection.Collapse Direction:=wdCollapseStart
+    End If
+    .Execute
+End With
+
+oWordDoc.bookmarks.Add Name:=sBookmarkName
+
+sBookmarkName = "IndexE"
+
+oWordDoc.Application.Selection.Find.ClearFormatting
+oWordDoc.Application.Selection.Find.Replacement.ClearFormatting
+With oWordDoc.Application.Selection.Find
+    .Text = "#TOCE#"
+    .Replacement.Text = ""
+    .Forward = True
+    .Wrap = wdFindContinue
+    .Format = False
+    .MatchCase = False
+    .MatchWholeWord = False
+    .MatchWildcards = False
+    .MatchSoundsLike = False
+    .MatchAllWordForms = False
+    .Execute
+    If .Forward = True Then
+        .Application.Selection.Collapse Direction:=wdCollapseStart
+    Else
+        .Application.Selection.Collapse Direction:=wdCollapseEnd
+    End If
+    .Execute Replace:=wdReplaceOne
+    If .Forward = True Then
+        .Application.Selection.Collapse Direction:=wdCollapseEnd
+    Else
+        .Application.Selection.Collapse Direction:=wdCollapseStart
+    End If
+    .Execute
+End With
+
+oWordDoc.bookmarks.Add Name:=sBookmarkName
+
+oWordDoc.SaveAs filename:=sFileName
+oWordDoc.Close
+oWordApp.Quit
+End Function
