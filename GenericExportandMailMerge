@@ -1,7 +1,13 @@
 
 Function GenericExportandMailMerge(sQueryName As String, sTemplateName As String)
-'exports to specified template from T:\Document Generator\Templates and saves in T:\In Progress\####\
-'Call GenericExportandMailMerge(sQueryName, sTemplateName)
+'============================================================================
+' Name        : GenericExportandMailMerge
+' Author      : Erica L Ingram
+' Copyright   : 2019, A Quo Co.
+' Call command: Call GenericExportandMailMerge(sQueryName, sTemplateName)
+' Description : exports to specified template from T:\Document Generator\Templates and saves in T:\In Progress\sCourtDatesID\
+'============================================================================
+
 Dim sTemplatePath As String, sLinkToExportedXLS As String, sCourtDatesID As String
 Dim oWordDoc As Object
 Dim qdfQuery As QueryDef
@@ -10,6 +16,7 @@ Dim rstQuery As DAO.Recordset
 sCourtDatesID = Forms![NewMainMenu]![ProcessJobSubformNMM].Form![JobNumberField]
 sTemplatePath = "T:\In Progress\" & sCourtDatesID & "\" & sCourtDatesID & "-" & sTemplateName & ".docx"
 sLinkToExportedXLS = "T:\In Progress\" & sCourtDatesID & "\WorkingFiles\" & sCourtDatesID & "-Temp-Export-" & sTemplateName & ".xls"
+
 Set qdfQuery = CurrentDb.QueryDefs(sQueryName)
 qdfQuery.Parameters(0) = sCourtDatesID
 Set rstQuery = qdf.OpenRecordset
