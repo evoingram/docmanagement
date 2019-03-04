@@ -1,0 +1,150 @@
+
+Function FPJurors()
+
+'============================================================================
+' Name        : FPJurors
+' Author      : Erica L Ingram
+' Copyright   : 2019, A Quo Co.
+' Call command: Call FPJurors()
+' Description : does find/replacements of prospective jurors in transcript
+'============================================================================
+
+Dim sRoughDraft As String, sFileName As String, sSpeakerName As String
+Dim sCourtCover As String, ssSpeakerFind As String, sdSpeakerFind As String
+Dim sqSpeakerFind As String, ssSpeakerName As String, sdSpeakerName As String
+Dim sqSpeakerName As String, sCourtDatesID As String
+Dim oCourtCoverWD As Object, oWordApp As Object
+Dim x As Integer, y As Integer
+Call GetCaseInfoQDFRecordset  'refresh transcript info
+    sCourtDatesID = Forms![NewMainMenu]![ProcessJobSubformNMM].Form![JobNumberField]
+    x = 101 '101 is number of first PROSPECTIVE JUROR
+    sCourtCover = "T:\In Progress\" & sCourtDatesID & "\" & sCourtDatesID & "-CourtCover.docx" 'file name to do find replaces in
+    Set oWordApp = CreateObject("Word.Application")
+    oWordApp.Visible = False
+    Set oCourtCoverWD = oWordApp.Documents.Open(sCourtCover)
+    
+With oCourtCoverWD
+
+    ssSpeakerFind = " snl100 "
+    sdSpeakerFind = " dnl100 "
+    sqSpeakerFind = " qnl100 "
+    ssSpeakerName = ".^p" & UCase("PROSPECTIVE JUROR") & ":  "
+    sdSpeakerName = "^s--^p" & UCase("PROSPECTIVE JUROR") & ":  "
+    sqSpeakerName = "?^p" & UCase("PROSPECTIVE JUROR") & ":  "
+                
+    .Application.Selection.Find.ClearFormatting
+    .Application.Selection.Find.Replacement.ClearFormatting
+    With .Application.Selection.Find
+        .Text = ssSpeakerFind
+        .Replacement.Text = ssSpeakerName
+        .Forward = True
+        .Wrap = wdFindContinue
+        .Format = False
+        .MatchCase = True
+        .MatchWholeWord = False
+        .MatchWildcards = False
+        .MatchSoundsLike = False
+        .MatchAllWordForms = False
+    End With
+    .Application.Selection.Find.Execute Replace:=wdReplaceAll
+    
+    .Application.Selection.Find.ClearFormatting
+    .Application.Selection.Find.Replacement.ClearFormatting
+    With .Application.Selection.Find
+        .Text = sdSpeakerFind
+        .Replacement.Text = sdSpeakerName
+        .Forward = True
+        .Wrap = wdFindContinue
+        .Format = False
+        .MatchCase = True
+        .MatchWholeWord = False
+        .MatchWildcards = False
+        .MatchSoundsLike = False
+        .MatchAllWordForms = False
+    End With
+    .Application.Selection.Find.Execute Replace:=wdReplaceAll
+    
+    .Application.Selection.Find.ClearFormatting
+    .Application.Selection.Find.Replacement.ClearFormatting
+    With .Application.Selection.Find
+        .Text = sqSpeakerFind
+        .Replacement.Text = sqSpeakerName
+        .Forward = True
+        .Wrap = wdFindContinue
+        .Format = False
+        .MatchCase = True
+        .MatchWholeWord = False
+        .MatchWildcards = False
+        .MatchSoundsLike = False
+        .MatchAllWordForms = False
+    End With
+    .Application.Selection.Find.Execute Replace:=wdReplaceAll
+    
+    If Not (x = 100 And x = 200) Then
+        Do Until x = 200
+            ssSpeakerFind = " snl" & x & " "
+            sdSpeakerFind = " dnl" & x & " "
+            sqSpeakerFind = " qnl" & x & " "
+            y = x - 100
+            ssSpeakerName = ".^p" & UCase("PROSPECTIVE JUROR NO. ") & y & ":  "
+            sdSpeakerName = "^s--^p" & UCase("PROSPECTIVE JUROR NO. ") & y & ":  "
+            sqSpeakerName = "?^p" & UCase("PROSPECTIVE JUROR NO. ") & y & ":  "
+                
+            .Application.Selection.Find.ClearFormatting
+            .Application.Selection.Find.Replacement.ClearFormatting
+            With .Application.Selection.Find
+                .Text = ssSpeakerFind
+                .Replacement.Text = ssSpeakerName
+                .Forward = True
+                .Wrap = wdFindContinue
+                .Format = False
+                .MatchCase = True
+                .MatchWholeWord = False
+                .MatchWildcards = False
+                .MatchSoundsLike = False
+                .MatchAllWordForms = False
+            End With
+            .Application.Selection.Find.Execute Replace:=wdReplaceAll
+            
+            .Application.Selection.Find.ClearFormatting
+            .Application.Selection.Find.Replacement.ClearFormatting
+            With .Application.Selection.Find
+                .Text = sdSpeakerFind
+                .Replacement.Text = sdSpeakerName
+                .Forward = True
+                .Wrap = wdFindContinue
+                .Format = False
+                .MatchCase = True
+                .MatchWholeWord = False
+                .MatchWildcards = False
+                .MatchSoundsLike = False
+                .MatchAllWordForms = False
+            End With
+            .Application.Selection.Find.Execute Replace:=wdReplaceAll
+            
+            .Application.Selection.Find.ClearFormatting
+            .Application.Selection.Find.Replacement.ClearFormatting
+            With .Application.Selection.Find
+                .Text = sqSpeakerFind
+                .Replacement.Text = sqSpeakerName
+                .Forward = True
+                .Wrap = wdFindContinue
+                .Format = False
+                .MatchCase = True
+                .MatchWholeWord = False
+                .MatchWildcards = False
+                .MatchSoundsLike = False
+                .MatchAllWordForms = False
+            End With
+            .Application.Selection.Find.Execute Replace:=wdReplaceAll
+            
+            x = x + 1 'add 1 to x for next speaker name
+        Loop
+    Else
+        MsgBox "There are no prospective jurors to find/replace."
+    End If
+End With
+oCourtCoverWD.Save
+oCourtCoverWD.Close
+oWordApp.Quit
+End Function
