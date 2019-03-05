@@ -1,0 +1,231 @@
+
+Function ConcordanceBuilder()
+'============================================================================
+' Name        : ConcordanceBuilder
+' Author      : Erica L Ingram
+' Copyright   : 2019, A Quo Co.
+' Call command: Call ConcordanceBuilder
+' Description : builds word index in separate PDF from transcript
+'============================================================================
+
+Dim sInput As String, sFileName As String, sCourtDatesID As String
+Dim sCurrentIndexEntry As String, sCurrentEntryOriginal As String, sExclusions As String
+Dim sCurrentEntry1 As String, sCurrentEntry2 As String, sCurrentEntry3 As String
+Dim sCurrentEntry4 As String, sCurrentEntry5 As String
+Dim oWordApp As Object, oWordDoc As Object, oWordApp1 As Object, oWordDoc1 As Object
+Dim w As Long, x As Long, y As Long, z As Long
+Dim Rng
+
+sCourtDatesID = Forms![NewMainMenu]![ProcessJobSubformNMM].Form![JobNumberField]
+sFileName = "T:\In Progress\" & sCourtDatesID & "\" & sCourtDatesID & "-CourtCover.docx"
+
+Set oWordApp1 = CreateObject(Class:="Word.Application")
+oWordApp1.Visible = True
+
+oWordApp1.AutomationSecurity = msoAutomationSecurityLow
+Set oWordDoc1 = oWordApp1.Application.Documents.Open(sFileName)
+
+sExclusions = "a,am,an,and,are,as,at,b,be,but,by,c,can,cm,d,did,case,cases,about,cause,ask,asks,asked,asking," & _
+          "do,does,e,eg,en,eq,etc,f,for,g,get,go,got,h,has,have,correct,conduct,examination,direct,cross," & _
+          "he,her,him,how,i,ie,if,in,into,is,it,its,j,k,l,m,me,don't,didn't,county,court,motion,look,looking,looked," & _
+          "mi,mm,my,n,na,nb,no,not,o,of,off,ok,on,one,or,our,out,had,going,first,knew,know,under,thing,things,took," & _
+          "p,q,r,re,s,she,so,t,the,their,them,they,this,t,to,u,v,his,her,honor,here,objection," & _
+          "like,let,law,other,order,last,know,judge,petitioner's,respondent's,plaintiff's,defendant's,court's," & _
+          "from,then,than,court,there's,that,that's,order,indiscernible,who,what,when,where,why,yes,yeah,i've,I'm,just,right,order,all,because,it's,aquoco.co,no,that,that's,I've,there,petitioner,respondent,plaintiff,defendant,right,um,uh,huh," & _
+          "via,vs,w,was,we,were,who,will,with,would,x,y,yd,you,your,you're,yours,he's,she's,she,z," & _
+          "well,since,sorry,there,there'stook,too,such,than,times,1,2,3,4,5,6,7,8,9,0,98119,again,after,address,actually,a.m,p.m,anyway,anything," & _
+          "anyone,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,able,another,anyone,anything,anywhere,anytime," & _
+          "being,before,asked,asking,around,ask,away,ave,bac,bad,been,before,being,beings,between,boys,c.d,call,called,calling,cannot,can't,won't,don't,aren't,isn't," & _
+          "clerk,clear,child,children,children's,course,closee,come,coming,contact,correct,could,couldn't,wouldn't,shouldn't,didn't,doesn't,current,day,doing,done," & _
+          "even,every,excuse,evidence,evidencing,exactly,factors,factor,fear,feel,feet,fifth,female,sixth,seventh,eighth,ninth,first,second,third,fourth,front,hard," & _
+          "soft,gone,given,hear,hearing,have,having,have,folks,jury,jurors,venire,herself,himself,her,hers,his,help,handle,happy,guys,guy,group,gotten,good,full,form," & _
+          "forth,family,excuse,guilty,he's,she's,high,his,hold,huh,uh,i.d,i'd,i'm,i'll,i.m,however,hyperlinked,include,included,including,indeed,index,information,indiscernible," & _
+          "job,king,judge,law,know,knew,knows,last,lasted,later,interest,interested,issue,issues,issued,let,leave,hours,court," & _
+          "live,might,lives,lived,living,long,longer,look,looked,looking,looks,love,made,mail,make,makes,making,man,march,matter,mean,meaning,means,meant,meet,meets,might,mind," & _
+          "met,more,most,mount,names,name,need,needed,needs,never,new,news,next,nor,notice,number,numbers,numbered,old,only,open,original,other,own,owned,page,parent,parents,parties,party," & _
+          "pattern,period,periods,petition,petitioner,response,responses,respondent,problem,problems,point,please,put,read,purpose,record,records,prior,report,restraining,service,sorry,sort,kind,statute," & _
+          "six,school,under,through,think,thought,things,thing,they're,these,there's,there,tell,telling,table,take,such,stattues,still,temporary,thrown,took,too,though,through,sure," & _
+          "wi,try,trying,tried,tries,see,seeing,saw,sees,self,person,persons,people," & _
+          "you've,you're,well,we'll,went,we're,why,what,who,will,way,wanted,want,very,us,until,week,weeks,yesterday,talk,talking,use,which,wherever,some,question,questions"
+          
+With oWordDoc1
+    .Application.DisplayAlerts = False
+    .Application.Visible = False
+    sInput = .Content.Text
+        
+    For w = 1 To 255 'hyphens & single quotes kept; strip unwanted chars
+        Select Case w
+            Case 1 To 35, 37 To 38, 40 To 43, 45, 47, 58 To 64, 91 To 96, 123 To 127, 129 To 144, 147 To 149, 152 To 162, 164, 166 To 171, 174 To 191, 247
+            sInput = Replace(sInput, Chr(w), " ")
+        End Select
+    Next
+    
+    sInput = Replace(Replace(Replace(Replace(sInput, Chr(44) & Chr(32), " "), Chr(44) & vbCr, " "), Chr(46) & Chr(32), " "), Chr(46) & vbCr, " ")
+    sInput = Replace(Replace(Replace(Replace(sInput, Chr(145), "'"), Chr(146), "'"), "' ", " "), " '", " ")
+    sInput = " " & LCase(Trim(sInput)) & " "
+    
+    For w = 0 To UBound(Split(sExclusions, ",")) 'loop through sExclusions
+        While InStr(sInput, " " & Split(sExclusions, ",")(w) & " ") > 0
+            sInput = Replace(sInput, " " & Split(sExclusions, ",")(w) & " ", " ")
+        Wend
+    Next
+    
+    While InStr(sInput, "  ") > 0
+        sInput = Replace(sInput, "  ", " ")
+    Wend
+    
+    sInput = " " & Trim(sInput) & " "
+    x = UBound(Split(sInput, " "))
+    z = x
+    
+    For w = 1 To x
+        sCurrentEntryOriginal = Split(sInput, " ")(1) 'get word count
+        While InStr(sInput, " " & sCurrentEntryOriginal & " ") > 0
+            sInput = Replace(sInput, " " & sCurrentEntryOriginal & " ", " ")
+        Wend
+        y = z - UBound(Split(sInput, " ")) 'calculate replaced count
+        sCurrentIndexEntry = sCurrentIndexEntry & sCurrentEntryOriginal & vbTab & y & vbCr 'update current index entry
+        z = UBound(Split(sInput, " "))
+        If z = 1 Then Exit For
+        DoEvents
+    Next
+    
+    sInput = sCurrentIndexEntry
+    sCurrentIndexEntry = ""
+    sCurrentEntry5 = UBound(Split(sInput, vbCr)) - 1
+    
+    For w = 0 To sCurrentEntry5
+        sCurrentEntryOriginal = ""
+        With .Range
+            With .Find
+                .ClearFormatting
+                sCurrentEntry4 = Split(Split(sInput, vbCr)(w), vbTab)(0)
+                sCurrentEntry1 = " " & Split(Split(sInput, vbCr)(w), vbTab)(1)
+                .Text = sCurrentEntry4
+                .Replacement.Text = ""
+                .Wrap = wdFindStop
+                .Forward = True
+                .Format = False
+                .MatchCase = False
+                .MatchWholeWord = True
+                .MatchWildcards = False
+                .MatchSoundsLike = False
+                .MatchAllWordForms = False
+                .Execute
+            End With
+            Do While .Find.Found
+                If sCurrentEntryOriginal = "" Then sCurrentEntryOriginal = sCurrentEntryOriginal & " " & .Information(wdActiveEndPageNumber)
+                sCurrentEntry1 = Right(sCurrentEntryOriginal, 2)
+                sCurrentEntry2 = " " & .Information(wdActiveEndPageNumber)
+                If sCurrentEntry1 = sCurrentEntry2 Then sCurrentEntryOriginal = sCurrentEntryOriginal
+                If sCurrentEntry1 <> sCurrentEntry2 Then sCurrentEntryOriginal = sCurrentEntryOriginal & " " & .Information(wdActiveEndPageNumber)
+                .Collapse (wdCollapseEnd)
+                .Find.Execute
+                
+                If sCurrentEntry1 = "" Then GoTo ExitLoop1
+            Loop
+ExitLoop1:
+        End With
+        sCurrentEntryOriginal = Replace(Trim(sCurrentEntryOriginal), " ", ",")
+        sCurrentIndexEntry = sCurrentIndexEntry & Split(sInput, vbCr)(w) & vbTab & sCurrentEntryOriginal & vbCr
+                If sCurrentEntryOriginal = "" Then GoTo ExitLoop2
+    Next
+End With
+oWordApp1.Quit
+ExitLoop2:
+
+Set oWordApp = CreateObject("Word.Application")
+oWordApp.Visible = False
+Set oWordDoc = oWordApp.Documents.Add("T:\Document Generator\Templates\TR-WordIndex.dotm") 'template
+
+With oWordDoc
+    Set Rng = .Range.Characters.Last
+
+    'Create the word index
+    With Rng
+        .InsertAfter vbCr & Chr(12) & sCurrentIndexEntry
+        .Start = .Start
+        .ConvertToTable Separator:=vbTab, NumColumns:=3
+        .Tables(1).Sort Excludeheader:=False, FieldNumber:=1, _
+        SortFieldType:=wdSortFieldAlphanumeric, _
+        SortOrder:=wdSortOrderAscending, CaseSensitive:=False
+        .Tables.Item(1).Columns(2).Delete
+        .Tables.Item(1).Columns(1).Width = InchesToPoints(1.1)
+        .Tables.Item(1).Columns(2).Width = InchesToPoints(0.8)
+    End With
+    
+    With Rng
+        .Tables(1).Columns(1).Select
+        .Application.Selection.Font.Bold = wdToggle
+    End With
+    
+    vBookmarkName = "WordIndex"
+    
+    .Application.Selection.Find.ClearFormatting
+    .Application.Selection.Find.Replacement.ClearFormatting
+    With .Application.Selection.Find
+        .Text = "#WI#"
+        .Replacement.Text = ""
+        .Forward = True
+        .Wrap = wdFindContinue
+        .Format = False
+        .MatchCase = False
+        .MatchWholeWord = False
+        .MatchWildcards = False
+        .MatchSoundsLike = False
+        .MatchAllWordForms = False
+        .Execute
+        If .Forward = True Then
+            .Application.Selection.Collapse Direction:=wdCollapseStart
+        Else
+            .Application.Selection.Collapse Direction:=wdCollapseEnd
+        End If
+        .Execute Replace:=wdReplaceOne
+        If .Forward = True Then
+            .Application.Selection.Collapse Direction:=wdCollapseEnd
+        Else
+            .Application.Selection.Collapse Direction:=wdCollapseStart
+        End If
+        .Execute
+    End With
+    
+    .bookmarks.Add Name:=vBookmarkName
+    .Application.Selection.EndKey Unit:=wdStory, Extend:=wdExtend
+    
+    With .Application.Selection.PageSetup.TextColumns
+        .SetCount NumColumns:=3
+        .EvenlySpaced = True
+        .LineBetween = False
+    End With
+    
+    .Application.Selection.Goto What:=wdGoToBookmark, Name:="WordIndex"
+    
+    If .ActiveWindow.View.SplitSpecial = wdPaneNone Then
+        .ActiveWindow.ActivePane.View.Type = wdNormalView
+    Else
+        .ActiveWindow.View.Type = wdNormalView
+    End If
+    
+    .Application.Selection.MoveDown Unit:=wdLine, Count:=4
+    .Application.Selection.Delete Count:=3
+    
+    If .ActiveWindow.View.SplitSpecial = wdPaneNone Then
+        .ActiveWindow.ActivePane.View.Type = wdPrintView
+    Else
+        .ActiveWindow.View.Type = wdPrintView
+    End If
+    
+    .Application.Selection.HomeKey Unit:=wdLine
+    .Application.Selection.HomeKey Unit:=wdStory
+    .Application.Selection.EndKey Unit:=wdLine
+    .Application.Selection.MoveRight Unit:=wdCharacter, Count:=1
+    .Application.Selection.EndKey Unit:=wdStory, Extend:=wdExtend
+    .Application.Selection.Font.Size = 10
+    
+    .SaveAs "T:\In Progress\" & sCourtDatesID & "\" & sCourtDatesID & "-WordIndex.docx"
+    .Close
+End With
+
+oWordApp.Quit
+
+End Function
