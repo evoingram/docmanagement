@@ -1,0 +1,122 @@
+
+
+Function FindAndReplaceCitationHyperlinks()
+'============================================================================
+' Name        : FindAndReplaceCitationHyperlinks
+' Author      : Erica L Ingram
+' Copyright   : 2019, A Quo Co.
+' Call command: Call FindAndReplaceCitationHyperlinks
+' Description : adds citations and hyperlinks from CitationHyperlinks table in transcript
+'============================================================================
+Dim qReplaceHyperlink
+Dim callWordMerge As Variant
+Dim oWordApp As Object, oWordDoc As Object
+Dim db As Database
+Dim Rng As Range
+Dim rstCitationHyperlinks As DAO.Recordset
+Dim sFileName As String, sCourtDatesID As String, sQLongCitation As String
+Dim sQFindCitation As String, sQCHCategory As String, sQWebAddress As String
+
+sCourtDatesID = Forms![NewMainMenu]![ProcessJobSubformNMM].Form![JobNumberField]
+sFileName = "T:\In Progress\" & sCourtDatesID & "\" & sCourtDatesID & "-CourtCover.docx"
+
+Set oWordApp = CreateObject("Word.Application")
+oWordApp.Visible = False
+
+If Dir(sFileName) = "" Then
+    MsgBox "Document not found."
+Else
+    Set oWordApp = CreateObject(Class:="Word.Application")
+    oWordApp.Visible = True
+    oWordApp.AutomationSecurity = msoAutomationSecurityLow
+    Set oWordDoc = oWordApp.Application.Documents.Open(sFileName)
+    oWordApp.Application.Visible = True
+    oWordApp.Activate
+    
+    Set db = CurrentDb
+    Set rstCitationHyperlinks = db.OpenRecordset("CitationHyperlinks")
+    
+    If Not (rstCitationHyperlinks.EOF And rstCitationHyperlinks.BOF) Then
+        rstCitationHyperlinks.MoveFirst
+        Do Until rstCitationHyperlinks.EOF = True
+        
+            sQFindCitation = rstCitationHyperlinks.Fields("FindCitation").Value
+            qReplaceHyperlink = rstCitationHyperlinks.Fields("ReplaceHyperlink").Value
+            sQLongCitation = rstCitationHyperlinks.Fields("LongCitation").Value
+            sQCHCategory = rstCitationHyperlinks.Fields("CHCategory").Value
+            sQWebAddress = rstCitationHyperlinks.Fields("WebAddress").Value
+            
+            With oWordDoc
+                .Application.Selection.Find.ClearFormatting
+                .Application.Selection.Find.Replacement.ClearFormatting
+                With .Application.Selection.Find
+                    .Text = sQFindCitation
+                    .Replacement.Text = sQFindCitation
+                    .Forward = True
+                    .Wrap = wdFindContinue
+                    .Format = False
+                    .MatchCase = True
+                    Do While .Application.Selection.Find.Execute(FindText:=sQFindCitation, Forward:=True) = True
+                        oWordDoc.Hyperlinks.Add Anchor:=.Application.Selection.Range, _
+                            Address:=sQWebAddress, ScreenTip:=sQLongCitation & ":" & Chr(13) & sQWebAddress, _
+                            TextToDisplay:=sQFindCitation
+                    Loop
+                        oWordDoc.TablesOfAuthorities.MarkAllCitations ShortCitation:=sQFindCitation, _
+                            LongCitation:=sQLongCitation, LongCitationAutoText:=sQLongCitation, Category:=sQCHCategory
+                        oWordDoc.Application.Selection.HomeKey Unit:=wdStory
+                End With
+            End With
+        
+            sQFindCitation = ""
+            qReplaceHyperlink = ""
+            sQLongCitation = ""
+            sQCHCategory = ""
+            sQWebAddress = ""
+            
+            rstCitationHyperlinks.MoveNext
+            
+        Loop
+    End If
+    oWordDoc.Application.Selection.HomeKey Unit:=wdStory
+    oWordDoc.Application.ActiveWindow.ActivePane.View.ShowAll = Not oWordDoc.Application.ActiveWindow.ActivePane.View.ShowAll
+    oWordDoc.Application.Selection.Find.ClearFormatting
+    oWordDoc.Application.Selection.Find.Replacement.ClearFormatting
+    With oWordDoc.Application.Selection.Find
+        .Text = "l [\""](*)[\""] [\\]s [\""](*)[\""]"
+        .Replacement.Text = "l ""\1"" ^92s ""\1"""
+        .Forward = True
+        .Wrap = wdFindContinue
+        .Format = False
+        .MatchCase = False
+        .MatchWholeWord = False
+        .MatchAllWordForms = False
+        .MatchSoundsLike = False
+        .MatchWildcards = True
+    End With
+    oWordDoc.Application.Selection.Find.Execute Replace:=wdReplaceAll
+    
+    oWordDoc.SaveAs filename:=sFileName
+    oWordDoc.Close
+    oWordApp.Quit
+    
+End If
+
+rstCitationHyperlinks.Close
+db.Close
+
+Beep
+Err.Clear
+
+FindAndReplace_Exit:
+    Exit Function
+
+FindAndReplace_Err:
+    If (Err = 2302) Then
+        MsgBox "Path is no longer valid.  Please revise table.", vbOKOnly
+    Else
+        MsgBox Err.Description
+    End If
+    Resume Next
+End Function
+
+
