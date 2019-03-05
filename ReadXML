@@ -1,0 +1,61 @@
+
+Public Function ReadXML()
+'============================================================================
+' Name        : ReadXML
+' Author      : Erica L Ingram
+' Copyright   : 2019, A Quo Co.
+' Call command: Call ReadXML
+' Description : reads shipping XML and sends "Shipped" email to client
+'============================================================================
+
+Dim sFullOutputDonePath As String, sTrackingNumber As String
+Dim sOutputPath, sFullOutputPath As String
+Dim dShipDate As Date, dShipDateFormatted As Date
+Dim rstCurrentJob As DAO.Recordset
+Dim formDOM As DOMDocument60    'Currently opened xml file
+Dim ixmlRoot As IXMLDOMElement
+Dim Rng As Range
+
+sOutputPath = Dir("T:\ShippingXMLs\Output\")
+Do While Len(sOutputPath) > 0
+    sFullOutputPath = "T:\ShippingXMLs\Output\" & sOutputPath
+    sFullOutputDonePath = "T:\ShippingXMLs\done" & sOutputPath
+    
+    Set formDOM = New DOMDocument60         'Open the xml file
+    formDOM.resolveExternals = False        'using schema yes/no true/false
+    formDOM.validateOnParse = False         'Parser validate document?  Still parses well-formed XML
+    formDOM.Load (sFullOutputPath)
+    
+    Set ixmlRoot = formDOM.DocumentElement 'Get document reference
+    
+    vCourtDatesID = ixmlRoot.selectSingleNode("//DAZzle/Package/ReferenceID").Text
+    dShipDate = ixmlRoot.selectSingleNode("//DAZzle/Package/PostmarkDate").Text
+    dShipDateFormatted = DateSerial(Left(dShipDate, 4), Mid(dShipDate, 5, 2), Right(dShipDate, 2))
+    sTrackingNumber = ixmlRoot.selectSingleNode("//DAZzle/Package/PIC").Text
+    
+    Set rstCurrentJob = CurrentDb.OpenRecordset("SELECT * FROM CourtDates WHERE ID = " & vCourtDatesID & ";")
+    
+    rstCurrentJob.Edit
+    rstCurrentJob.Fields("ShipDate").Value = dShipDateFormatted
+    rstCurrentJob.Fields("TrackingNumber").Value = sTrackingNumber
+    rstCurrentJob.Update
+    
+    Set rstCurrentJob = CurrentDb.OpenRecordset("SELECT * FROM [TR-Court-Q-3] WHERE [ID] = " & vCourtDatesID & ";")
+    
+    'global variables to use in next function
+    sParty1 = rstCurrentJob.Fields("Party1").Value
+    sParty2 = rstCurrentJob.Fields("Party2").Value
+    sCaseNumber1 = rstCurrentJob.Fields("CaseNumber1").Value
+    sHearingDate = rstCurrentJob.Fields("HearingDate").Value
+    sAudioLength = rstCurrentJob.Fields("AudioLength").Value
+    rstCurrentJob.Close
+    
+    sOutputPath = Dir
+    
+    Name sFullOutputPath As sFullOutputDonePath 'move file to other folder
+    
+    Call SendWordDocAsEmail("Shipped", "Transcript Shipped")
+       
+Loop
+
+End Function
