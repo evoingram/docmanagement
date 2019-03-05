@@ -33,6 +33,8 @@ Short Function Description:
 	SendWordDocAsEmail:  
 		sends Word document as an e-mail body with optional attachments
   
+  	ReadXML:  
+		reads shipping XML and sends "Shipped" email to client
   
   
   
