@@ -1,0 +1,54 @@
+Function CDLabelMergeF()
+'============================================================================
+' Name        : CDLabelMergeF
+' Author      : Erica L Ingram
+' Copyright   : 2019, A Quo Co.
+' Call command: Call CDLabelMergeF
+' Description : makes CD label and prompts for print or no
+'============================================================================
+
+Dim sPubDocName As String, sCommHistoryHyperlink As String, sCDLExcelExport As String
+Dim sPubDocName As String, sPubDocPDFName As String, sAnswer As String, sQuestion As String
+Dim oPubDoc As Publisher.Document
+Dim oPubApp As Publisher.Application
+Set oPubApp = New Publisher.Application
+
+
+Call CheckFolderExistence 'check for main folders and create if not exists
+Call GetCaseInfoQDFRecordset  'refresh transcript info 'get necessary case info
+
+sCDLExcelExport = "T:\In Progress\" & sCourtDatesID & "\workingfiles\" & sCourtDatesID & "-Temp-Export-CDL.xls"
+
+DoCmd.OutputTo acOutputQuery, qnTRCourtUnionAppAddrQ, acFormatXLS, sCDLExcelExport, False 'query info for label
+
+Set oPubDoc = oPubApp.Open("T:\Document Generator\templates\CD-Label.pub")
+
+sPubDocName = "T:\In Progress\" & sCourtDatesID & "\workingfiles\" & sCourtDatesID & "-CD-Label" & ".pub" 'set name
+sPubDocPDFName = "T:\In Progress\" & sCourtDatesID & "\" & sCourtDatesID & "-CD-Label" & ".pdf" 'set name
+sCommHistoryHyperlink = sCourtDatesID & "-CD-Label" & "#" & sPubDocName
+
+oPubDoc.MailMerge.OpenDataSource bstrDataSource:=sCDLExcelExport, bstrTable:="", fOpenExclusive:=True, fneverprompt:=1 'performs mail merge
+oPubDoc.MailMerge.Execute True, pbMergeToNewPublication
+oPubDoc.SaveAs filename:=sPubDocName 'saves file in job number folder in in progress
+
+Set dbVideoCollection = CurrentDb
+Set rstVideos = dbVideoCollection.OpenRecordset("CommunicationHistory")
+
+'Adds record to CommHistoryTable and link to document on hard drive
+rstVideos.AddNew
+    rstVideos("FileHyperlink").Value = sCommHistoryHyperlink
+    rstVideos("DateCreated").Value = Now
+    rstVideos("CourtDatesID").Value = sCourtDatesID
+    rstVideos("CustomersID").Value = vCustomerID
+rstVideos.Update
+
+sQuestion = "Print CD Label? (MAKE SURE PAPER IS CORRECT IN PRINTER)"
+sAnswer = MsgBox(sQuestion, vbQuestion + vbYesNo, "???") '
+
+If sAnswer = vbNo Then 'Code for No
+    MsgBox "CD label will not print."
+Else 'Code for yes
+    Call EmailtoPrint(sPubDocPDFName)
+    Set oPubDoc = Nothing
+End If
+End Function
