@@ -4,7 +4,8 @@ These are sample vba codes for managing Office documents.  Some are dependent on
 
 All code provided as is, no warranty.
 
- 	AddAQCExamStyle:  finds specific phrases in activedocument(transcript) and applies a specific style
+Short Function Description:
+	AddAQCExamStyle:  finds specific phrases in activedocument(transcript) and applies a specific style
 	CDLabelMergeF:  makes CD label and prompts for print or no
 	CommunicationHistoryAdd:  adds entry to CommunicationHistory table in Access DB
 	ConcordanceBuilder:  builds word index in separate docx & PDF from transcript
