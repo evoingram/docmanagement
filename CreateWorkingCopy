@@ -1,0 +1,79 @@
+
+Function CreateWorkingCopy()
+'============================================================================
+' Name        : CreateWorkingCopy
+' Author      : Erica L Ingram
+' Copyright   : 2019, A Quo Co.
+' Call command: Call CreateWorkingCopy
+' Description : creates "working copy" sent to client
+'============================================================================
+Dim sWCTranscriptsPath As String, sWCMainPath As String
+Dim sTranscriptsFPathDocX As String, sTranscriptsPathDocX As String, sTranscriptsPathNoExt As String
+Dim sAnswer As String, sMyNote As String, sCourtCoverPath As String, sCourtDatesID As String
+Dim oWordApp As Object, oWordDoc As Object, vbComp As Object
+Dim wsSections As Word.Sections, wsSection As Word.Section
+Dim x
+Dim oRng As Range
+sCourtDatesID = Forms![NewMainMenu]![ProcessJobSubformNMM].Form![JobNumberField]
+sWCTranscriptsPath = "T:\In Progress\" & sCourtDatesID & "\Transcripts\" & sCourtDatesID & "-Transcript-FINAL-workingcopy.docx"
+sTranscriptsFPathDocX = "T:\In Progress\" & sCourtDatesID & "\Transcripts\" & sCourtDatesID & "-Transcript.docx"
+sTranscriptsPathDocX = "T:\In Progress\" & sCourtDatesID & "\Transcripts\" & sCourtDatesID & "-Transcript-FINAL.docx"
+sTranscriptsPathNoExt = "T:\In Progress\" & sCourtDatesID & "\Transcripts\" & sCourtDatesID & "-Transcript-FINAL"
+sWCMainPath = "T:\In Progress\" & sCourtDatesID & "\" & sCourtDatesID & "-Transcript-FINAL-workingcopy.docx"
+
+Call ConcordanceBuilder
+
+sMyNote = "Next we will make a working copy.  Click yes when ready."
+sAnswer = MsgBox(sMyNote, vbQuestion + vbYesNo, "???")
+If sAnswer = vbNo Then 'Code for No
+    MsgBox "No working copy will be made."
+Else 'Code for yes
+    sCourtCoverPath = "T:\In Progress\" & sCourtDatesID & "\" & sCourtDatesID & "-CourtCover.docx"
+    Set oWordApp = CreateObject("Word.Document")
+    Set oWordDoc = oWordApp.Application.Documents.Add(sCourtCoverPath)
+    oWordApp.Application.DisplayAlerts = False
+    oWordApp.Application.Visible = False
+    SendKeys "+{Home}"
+    With oWordDoc
+        'add continuous section break at top
+        .Paragraphs(1).Range.InsertBreak Type:=wdSectionBreakContinuous
+        If .ProtectionType <> wdNoProtection Then .Unprotect password:="wrts0419"
+        'removes doc info and macro code within documentB
+        .RemoveDocumentInformation (wdRDIAll)
+        For Each vbComp In .VBProject.VBComponents
+            With vbComp
+                If .Type = 100 Then
+                    .CodeModule.DeleteLines 1, .CodeModule.CountOfLines
+                Else
+                    .VBProject.VBComponents.Remove vbComp
+                End If
+            End With
+        Next vbComp
+        SendKeys "+{Home}"
+        'delete cert section
+        Set wsSections = .Sections
+        Set oRng = .Range(Start:=.bookmarks("CertBMK").Range.End, End:=.bookmarks("ToABMK").Range.Start)
+        oRng.Delete
+        For x = wsSections.Last.Index To 1 Step -1
+            Set wsSection = wsSections.Item(x)
+            If x = 1 Then
+                wsSection.ProtectedForForms = True
+            Else
+                wsSection.ProtectedForForms = False
+            End If
+            
+        Next x
+        'lock up header, leave all other sections unlocked
+        .Protect Type:=wdAllowOnlyFormFields, noReset:=True, password:="wrts0419"
+        .SaveAs filename:=sWCTranscriptsPath, FileFormat:=wdFormatXMLDocument 'save as file
+    End With
+End If
+
+oWordDoc.Close
+oWordApp.Close
+Set oWordDoc = Nothing
+Set oWordApp = Nothing
+
+FileCopy sWCTranscriptsPath, sWCMainPath
+
+End Function
