@@ -1,0 +1,67 @@
+SELECT CommunicationHistory.CourtDatesID, Format([CommunicationHistory].[DateCreated],"mm/dd/yyyy") AS DateCreated, CommunicationHistory.FileHyperlink1
+FROM CommunicationHistory
+WHERE CommunicationHistory.CourtDatesID Is Null;
+
+
+SELECT CourtDatesBTRQuery2.BrandingThemes_BrandingTheme, InvoicesQuery4.CourtDatesID AS InvoicesQuery4_CourtDatesID, InvoicesQuery4.Reference, InvoicesQuery4.HearingDate, InvoicesQuery4.HearingStartTime, InvoicesQuery4.HearingEndTime, InvoicesQuery4.CasesID, InvoicesQuery4.OrderingID, InvoicesQuery4.AudioLength, InvoicesQuery4.Location, InvoicesQuery4.TurnaroundTimesCD, InvoicesQuery4.Expr1010, InvoicesQuery4.Cases_ID, InvoicesQuery4.Party1, InvoicesQuery4.Party2, InvoicesQuery4.CaseNumber1, InvoicesQuery4.CaseNumber2, InvoicesQuery4.Jurisdiction, InvoicesQuery4.CustomersID, InvoicesQuery4.Company, InvoicesQuery4.FirstName, InvoicesQuery4.LastName, InvoicesQuery4.Address, InvoicesQuery4.City, InvoicesQuery4.State, InvoicesQuery4.ZIP, InvoicesQuery4.EmailAddress, InvoicesQuery4.InvoiceNo, InvoicesQuery4.Quantity, InvoicesQuery4.InventoryItemCode, InvoicesQuery4.DueDate, InvoicesQuery4.InvoiceDate, InvoicesQuery4.AccountCode, InvoicesQuery4.TaxType, InvoicesQuery4.BrandingTheme, CourtDatesBTRQuery2.CourtDatesID, CourtDatesBTRQuery2.Code, CourtDatesBTRQuery2.[List Price]
+FROM InvoicesQuery4 INNER JOIN CourtDatesBTRQuery2 ON InvoicesQuery4.CourtDatesID=CourtDatesBTRQuery2.[CourtDatesID];
+
+UPDATE CourtDates INNER JOIN FinalUnitPriceQuery ON CourtDates.ID = FinalUnitPriceQuery.CourtDatesID SET CourtDates.FinalPrice = ([FinalUnitPriceQuery].[ActualQuantity]*[FinalUnitPriceQuery].[Rate])
+WHERE (((CourtDates.ID)=[FinalUnitPriceQuery].[CourtDatesID]));
+
+
+UPDATE CourtDates INNER JOIN InvoiceFPaymentDueDateQuery ON CourtDates.ID = InvoiceFPaymentDueDateQuery.CourtDatesID SET CourtDates.PaymentDueDate = ["PaymentDueDate"];
+
+UPDATE XeroInvoiceCSV SET XeroInvoiceCSV.InventoryItemCode = [CourtDatesBTRIQ4QXero].[Code], XeroInvoiceCSV.BrandingTheme = [CourtDatesBTRIQ4QXero].[BrandingTheme_BrandingTheme], XeroInvoiceCSV.UnitAmount = [CourtDatesBTRIQ4QXero].[List Price]
+WHERE (([XeroInvoiceCSV].[Reference]=[CourtDatesBTRIQ4QXero].[Reference]));
+
+SELECT Customers.ID, Customers.MrMs, Customers.[Company], Customers.[LastName], Customers.[FirstName], Customers.[BusinessPhone], Customers.Address, Customers.City, Customers.[State], Customers.[ZIP], Customers.FactoringApproved, Customers.EmailAddress, Customers.Notes
+FROM Customers INNER JOIN [TR-Court-Q] ON (Customers.ID=[TR-Court-Q].OrderingID) OR (Customers.ID=[TR-Court-Q].App1) Or (Customers.ID=[TR-Court-Q].App2) Or (Customers.ID=[TR-Court-Q].App3) Or (Customers.ID=[TR-Court-Q].App4) Or (Customers.ID=[TR-Court-Q].App5) Or (Customers.ID=[TR-Court-Q].App6)
+WHERE Customers.ID=[TR-Court-Q].OrderingID OR Customers.ID=[TR-Court-Q].App1 Or Customers.ID=[TR-Court-Q].App2 Or Customers.ID=[TR-Court-Q].App3 Or Customers.ID=[TR-Court-Q].App4 Or Customers.ID=[TR-Court-Q].App5 Or Customers.ID=[TR-Court-Q].App6;
+
+SELECT CourtDates.ID, CourtDates.HearingDate, CourtDates.HearingStartTime, CourtDates.HearingEndTime, Cases.Party1, Cases.Party2, Cases.Jurisdiction, Cases.HearingTitle, CourtDates.Location, CourtDates.CasesID
+FROM Cases INNER JOIN CourtDates ON CourtDates.[CasesID]=Cases.[ID]
+WHERE CourtDates.ID=(Forms![NewMainMenu]![ProcessJobSubformNMM].Form![JobNumberField]);
+
+SELECT ShippingOptionsQ.CourtDatesID, ShippingOptionsQ.MailClass, ShippingOptionsQ.PackageType, ShippingOptionsQ.Width, ShippingOptionsQ.Length, ShippingOptionsQ.Depth, ShippingOptionsQ.PriorityMailExpress1030, ShippingOptionsQ.HolidayDelivery, ShippingOptionsQ.SundayDelivery, ShippingOptionsQ.SaturdayDelivery, ShippingOptionsQ.SignatureRequired, ShippingOptionsQ.Stealth, ShippingOptionsQ.ReplyPostage, ShippingOptionsQ.InsuredMail, ShippingOptionsQ.COD, ShippingOptionsQ.RestrictedDelivery, ShippingOptionsQ.AdultSignatureRestricted, ShippingOptionsQ.AdultSignatureRequired, ShippingOptionsQ.ReturnReceipt, ShippingOptionsQ.CertifiedMail, ShippingOptionsQ.SignatureConfirmation, ShippingOptionsQ.USPSTracking, ShippingOptionsQ.ReferenceID, "Court of Appeals Div I Clerk's Office" AS ToName, "600 University St" AS ToAddress1, "One Union Square" AS ToAddress2, "Seattle" AS ToCity, "WA" AS ToState, "98101" AS ToPostalCode, ShippingOptionsQ.ToCountry, ShippingOptionsQ.Value, ShippingOptionsQ.Description, ShippingOptionsQ.WeightOz, ShippingOptionsQ.ActualWeight, ShippingOptionsQ.ActualWeightText, ShippingOptionsQ.ID
+FROM ShippingOptionsQ
+WHERE (((ShippingOptionsQ.CourtDatesID)=[Forms]![NewMainMenu]![ProcessJobSubformNMM].[Form]![JobNumberField]));
+
+SELECT SpeakersStatic.[ID], SpeakersStatic.[Jurisdiction], SpeakersStatic.[SPKR1], SpeakersStatic.[SPKR2], SpeakersStatic.[SPKR3], SpeakersStatic.[SPKR4], SpeakersStatic.[SPKR5], SpeakersStatic.[SPKR6], SpeakersStatic.[SPKR7], SpeakersStatic.[SPKR8], SpeakersStatic.[SPKR9], SpeakersStatic.[SPKR10], SpeakersStatic.[SPKR11], SpeakersStatic.[SPKR12], SpeakersStatic.[SPKR13], SpeakersStatic.[Spkr14], SpeakersStatic.[SPKR15], SpeakersStatic.[SPKR16], SpeakersStatic.[SPKR17], SpeakersStatic.[SPKR18], SpeakersStatic.[SPKR19], SpeakersStatic.[SPKR20], SpeakersStatic.[SPKR21], SpeakersStatic.[SPKR22], SpeakersStatic.[SPKR23], SpeakersStatic.[SPKR24], SpeakersStatic.[SPKR25], SpeakersStatic.[SPKR26], SpeakersStatic.[SPKR27], SpeakersStatic.[SPKR28], SpeakersStatic.[SPKR29], SpeakersStatic.[SPKR30], SpeakersStatic.[SPKR31], SpeakersStatic.[SPKR32], SpeakersStatic.[SPKR33], SpeakersStatic.[SPKR34], SpeakersStatic.[SPKR35], SpeakersStatic.[SPKR36], SpeakersStatic.[SPKR37], SpeakersStatic.[SPKR38], SpeakersStatic.[SPKR39], SpeakersStatic.[SPKR40], SpeakersStatic.[SPKR41], SpeakersStatic.[SPKR42], SpeakersStatic.[SPKR43], SpeakersStatic.[SPKR44], SpeakersStatic.[SPKR45], SpeakersStatic.[SPKR46], SpeakersStatic.[SPKR47], SpeakersStatic.[SPKR48], SpeakersStatic.[SPKR49], SpeakersStatic.[SPKR50], SpeakersStatic.[SPKR51], SpeakersStatic.[SPKR52], SpeakersStatic.[SPKR53], SpeakersStatic.[SPKR54], SpeakersStatic.[SPKR55], SpeakersStatic.[SPKR56], SpeakersStatic.[SPKR57], SpeakersStatic.[SPKR58], SpeakersStatic.[SPKR59], SpeakersStatic.[SPKR60], SpeakersStatic.[SPKR61], SpeakersStatic.[SPKR62], SpeakersStatic.[SPKR63], SpeakersStatic.[SPKR64], SpeakersStatic.[SPKR65], SpeakersStatic.[SPKR66], SpeakersStatic.[SPKR67], SpeakersStatic.[SPKR68], SpeakersStatic.[SPKR69], SpeakersStatic.[SPKR70], SpeakersStatic.[SPKR71], SpeakersStatic.[SPKR72], SpeakersStatic.[SPKR73], SpeakersStatic.[SPKR74], SpeakersStatic.[SPKR75], SpeakersStatic.[SPKR76], SpeakersStatic.[SPKR77], SpeakersStatic.[SPKR78], SpeakersStatic.[SPKR79], SpeakersStatic.[SPKR80], SpeakersStatic.[SPKR81], SpeakersStatic.[SPKR82], SpeakersStatic.[SPKR83], SpeakersStatic.[SPKR84], SpeakersStatic.[SPKR85], SpeakersStatic.[SPKR86], SpeakersStatic.[SPKR87], SpeakersStatic.[SPKR88], SpeakersStatic.[SPKR89], SpeakersStatic.[SPKR90], SpeakersStatic.[SPKR91], SpeakersStatic.[SPKR92], SpeakersStatic.[SPKR93], SpeakersStatic.[SPKR94], SpeakersStatic.[SPKR95], SpeakersStatic.[SPKR96], SpeakersStatic.[SPKR97], SpeakersStatic.[SPKR98], SpeakersStatic.[SPKR99], SpeakersStatic.[SPKR100]
+FROM SpeakersStatic
+WHERE SpeakersStatic.[ID]=2;
+
+SELECT CourtDates.ID, CourtDates.InvoiceNo, CourtDates.AudioLength, Cases.Party1, Cases.Party1Name, Cases.Party2, Cases.Party2Name, Cases.CaseNumber1, Cases.CaseNumber2, Cases.HearingTitle, Cases.Judge, Cases.JudgeTitle, Cases.Jurisdiction, Customers.Company, Customers.MrMs, Customers.LastName, Customers.FirstName, Customers.EmailAddress, Customers.BusinessPhone, Customers.Address, Customers.City, Customers.State, Customers.ZIP, CourtDates.HearingDate, CourtDates.HearingStartTime, CourtDates.HearingEndTime, CourtDates.CasesID, CourtDates.OrderingID, Cases.ID, CourtDates.CasesID, CourtDates.Subtotal, CourtDates.ShipDate, CourtDates.TrackingNumber, CourtDates.InvoiceDate, CourtDates.Quantity, CourtDates.ActualQuantity, CourtDates.ExpectedRebateDate, CourtDates.ExpectedAdvanceDate, CourtDates.FinalPrice, CourtDates.UnitPrice
+FROM Customers INNER JOIN (Cases INNER JOIN CourtDates ON Cases.[ID] = CourtDates.[CasesID]) ON Customers.[ID] = CourtDates.[OrderingID]
+WHERE (((Customers.Company) Like [Enter search term to search companies; enter a * before and after to search with wildcard or it will search exact match:]));
+
+SELECT CourtDates.ID, CourtDates.InvoiceNo, CourtDates.AudioLength, Cases.Party1, Cases.Party1Name, Cases.Party2, Cases.Party2Name, Cases.CaseNumber1, Cases.CaseNumber2, Cases.HearingTitle, Cases.Judge, Cases.JudgeTitle, Cases.Jurisdiction, Customers.Company, Customers.MrMs, Customers.LastName, Customers.FirstName, Customers.EmailAddress, Customers.BusinessPhone, Customers.Address, Customers.City, Customers.State, Customers.ZIP, CourtDates.HearingDate, CourtDates.HearingStartTime, CourtDates.HearingEndTime, CourtDates.CasesID, CourtDates.OrderingID, CourtDates.Subtotal, CourtDates.ShipDate, CourtDates.TrackingNumber, CourtDates.InvoiceDate, CourtDates.Quantity, CourtDates.ActualQuantity, CourtDates.ExpectedRebateDate, CourtDates.ExpectedAdvanceDate, CourtDates.FinalPrice, CourtDates.UnitPrice
+FROM (CourtDates INNER JOIN Customers ON (Customers.ID = CourtDates.OrderingID) OR (Customers.ID = CourtDates.App6) OR (Customers.ID = CourtDates.App5) OR (Customers.ID = CourtDates.App4) OR (Customers.ID = CourtDates.App3) OR (Customers.ID = CourtDates.App2) OR (Customers.ID = CourtDates.App1)) INNER JOIN Cases ON Cases.ID = CourtDates.CasesID
+WHERE (((Customers.FirstName))like [Enter search term to search attorney's first name.  Enter a * before and after to search with wildcard or it will search exact match:]);
+
+SELECT [Payments].InvoiceNo, CDbl(Nz(Sum([Payments].[Amount]),0)) AS TotalPayments
+FROM Payments
+GROUP BY [Payments].InvoiceNo;
+
+SELECT [FinalUnitPriceQuery].InvoiceNo, CDbl(Nz(Sum([FinalUnitPriceQuery].[FactoringCost]),0)) AS TotalFactoringCost
+FROM FinalUnitPriceQuery
+GROUP BY [FinalUnitPriceQuery].InvoiceNo;
+
+SELECT DISTINCT CourtDates.CasesID, CourtDates.OrderingID, CourtDates.TurnaroundTimesCD, Customers.Company, Customers.FirstName, Customers.LastName, CourtDates.InvoiceNo AS cInvoiceNo, CourtDates.DueDate, CourtDates.InvoiceDate AS cInvoiceDate, QEstimatedPricebyInvoiceNumber.InvoiceNo AS qInvoiceNo, QEstimatedPricebyInvoiceNumber.Subtotal AS qSubtotal, QEstimatedPricebyInvoiceNumber.PageCount AS qPageCount, QEstimatedPricebyInvoiceNumber.AudioLength AS qAudioLength
+FROM Customers INNER JOIN (QEstimatedPricebyInvoiceNumber INNER JOIN CourtDates ON QEstimatedPricebyInvoiceNumber.[InvoiceNo] = CourtDates.[InvoiceNo]) ON Customers.[ID] = CourtDates.[OrderingID]
+WHERE (((QEstimatedPricebyInvoiceNumber.InvoiceNo) = [CourtDates].[InvoiceNo]))
+GROUP BY QEstimatedPricebyInvoiceNumber.InvoiceNo, QEstimatedPricebyInvoiceNumber.AudioLength, CourtDates.InvoiceNo, QEstimatedPricebyInvoiceNumber.SubTotal, QEstimatedPricebyInvoiceNumber.PageCount, CourtDates.InvoiceDate, CourtDates.CasesID, CourtDates.OrderingID, CourtDates.AudioLength, CourtDates.TurnaroundTimesCD, Customers.Company, Customers.FirstName, Customers.LastName, CourtDates.DueDate;
+
+SELECT CourtDatesBTRQuery2.BrandingThemes_BrandingTheme, InvoicesQuery4.CourtDatesID AS InvoicesQuery4_CourtDatesID, InvoicesQuery4.Reference, InvoicesQuery4.HearingDate, InvoicesQuery4.HearingStartTime, InvoicesQuery4.HearingEndTime, InvoicesQuery4.CasesID, InvoicesQuery4.OrderingID, InvoicesQuery4.AudioLength, InvoicesQuery4.Location, InvoicesQuery4.TurnaroundTimesCD, InvoicesQuery4.Expr1010, InvoicesQuery4.Cases_ID, InvoicesQuery4.Party1, InvoicesQuery4.Party2, InvoicesQuery4.CaseNumber1, InvoicesQuery4.CaseNumber2, InvoicesQuery4.Jurisdiction, InvoicesQuery4.CustomersID, InvoicesQuery4.Company, InvoicesQuery4.FirstName, InvoicesQuery4.LastName, InvoicesQuery4.Address, InvoicesQuery4.City, InvoicesQuery4.State, InvoicesQuery4.ZIP, InvoicesQuery4.EmailAddress, InvoicesQuery4.InvoiceNo, InvoicesQuery4.Quantity, InvoicesQuery4.InventoryItemCode, InvoicesQuery4.DueDate, InvoicesQuery4.InvoiceDate, InvoicesQuery4.AccountCode, InvoicesQuery4.TaxType, InvoicesQuery4.BrandingTheme, CourtDatesBTRQuery2.CourtDatesID, CourtDatesBTRQuery2.Code, CourtDatesBTRQuery2.[List Price]
+FROM InvoicesQuery4 INNER JOIN CourtDatesBTRQuery2 ON InvoicesQuery4.CourtDatesID=CourtDatesBTRQuery2.[CourtDatesID];
+
+
+
+
+
+
+
+
+
+
+
