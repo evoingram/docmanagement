@@ -1,0 +1,165 @@
+
+Function TCEntryReplacement()
+'============================================================================
+' Name        : TCEntryReplacement
+' Author      : Erica L Ingram
+' Copyright   : 2019, A Quo Co.
+' Call command: Call TCEntryReplacement
+' Description : parent function that finds certain entries within a transcript and assigns TC entries to them for indexing purposes
+'============================================================================
+'parent function that finds certain entries within a transcript and assigns TC entries to them for indexing purposes
+Dim drTRCourtQ As DAO.Recordset, drViewJFAppQ As DAO.Recordset
+Dim sFileName As String, vMrMs2 As String, vLastName2 As String, vSpeakerName As String
+Dim oWordApp As Object, oCourtCoverWD As Object
+Dim qdf As QueryDef
+
+DoCmd.OpenQuery "ViewJobFormAppearancesQ", acViewNormal, acReadOnly 'open query
+vCourtDatesID = Forms![NewMainMenu]![ProcessJobSubformNMM].Form![JobNumberField] 'job number
+sFileName = "T:\In Progress\" & vCourtDatesID & "\" & vCourtDatesID & "-CourtCover.docx" 'file name to do find/replaces in
+Set oWordApp = CreateObject("Word.Application")
+oWordApp.Visible = False
+Set oCourtCoverWD = oWordApp.Documents.Open(sFileName)
+Set qdf = CurrentDb.QueryDefs("TR-Court-Q") 'open query
+qdf.Parameters(0) = vCourtDatesID
+Set drTRCourtQ = qdf.OpenRecordset
+vJurisdiction = drTRCourtQ!Jurisdiction
+vParty1Name = drTRCourtQ!Party1Name
+vParty2Name = drTRCourtQ!Party2Name
+
+qdf.Close
+drTRCourtQ.Close
+
+Set qdf = CurrentDb.QueryDefs("ViewJobFormAppearancesQ") 'open query
+qdf.Parameters(0) = vCourtDatesID
+Set drViewJFAppQ = qdf.OpenRecordset
+
+drViewJFAppQ.MoveFirst
+vMrMs2 = drViewJFAppQ!MrMs
+vLastName2 = drViewJFAppQ!LastName
+
+If Not (drViewJFAppQ.EOF And drViewJFAppQ.BOF) Then
+    drViewJFAppQ.MoveFirst
+    With oCourtCoverWD.Application 'beginning of file do these replacements
+        .Selection.Find.ClearFormatting
+        Call FieldReplaceAll("(nnn)", "^p", "TC ""WitnessName"" \l 2-3")
+        Call FieldReplaceAll("(ema)", "^p(Exhibit ## marked and admitted.)^p", "TC ""Exhibit  marked and admitted."" \f cd")
+        Call FieldReplaceAll("(emm)", "^p(Exhibit ## marked.)^p", "TC ""Exhibit  marked."" \f cd")
+        Call FieldReplaceAll("(eaa)", "^p(Exhibit ## admitted.)^p", "TC ""Exhibit  admitted."" \f cd")
+        Call FieldReplaceAll("(ee1)", "^pDIRECT EXAMINATION^p", "TC ""Direct Examination by "" \l 2-3")
+        Call FieldReplaceAll("(ee2)", "^pCROSS-EXAMINATION^p", "TC ""Cross-Examination by "" \l 2-3")
+        Call FieldReplaceAll("(ee3)", "^pREDIRECT EXAMINATION^p", "TC ""Redirect Examination by "" \l 2-3")
+        Call FieldReplaceAll("(ee4)", "^pRECROSS-EXAMINATION^p", "TC ""Recross-Examination by "" \l 2-3")
+        Call FieldReplaceAll("(ee5)", "^pFURTHER REDIRECT EXAMINATION^p", "TC ""Further Redirect Examination by "" \l 2-3")
+        Call FieldReplaceAll("(ee6)", "^pFURTHER RECROSS-EXAMINATION^p", "TC ""Further Recross-Examination by "" \l 2-3")
+        Call FieldReplaceAll("(e1c)", "^pDIRECT EXAMINATION CONTINUED^p", "TC ""Direct Examination Continued by "" \l 2-3")
+        Call FieldReplaceAll("(e2c)", "^pCROSS-EXAMINATION CONTINUED^p", "TC ""Cross-Examination Continued by "" \l 2-3")
+        Call FieldReplaceAll("(e3c)", "^pREDIRECT EXAMINATION CONTINUED^p", "TC ""Redirect Examination Continued by "" \l 2-3")
+        Call FieldReplaceAll("(e4c)", "^pRECROSS-EXAMINATION CONTINUED^p", "TC ""Recross-Examination Continued by "" \l 2-3")
+        Call FieldReplaceAll("(e5c)", "^pFURTHER REDIRECT EXAMINATION CONTINUED^p", "TC ""Further Redirect Examination Continued by "" \l 2-3")
+        Call FieldReplaceAll("(e6c)", "^pFURTHER RECROSS-EXAMINATION CONTINUED^p", "TC ""Further Recross-Examination Continued by "" \l 2-3")
+        Call FieldReplaceAll("(crr)", "^pCOURT'S RULING" & "^p", "TC ""Court's Ruling \f a")
+        Call FieldReplaceAll("(aa1)", "^pARGUMENT FOR THE " & UCase(vParty1Name) & " BY " & UCase(vMrMs2) & ". " & UCase(vLastName2) & "^p", "TC ""Argument for the " & vParty1Name & " by " & vMrMs2 & ". " & vLastName2 & """ \f a")
+        Call FieldReplaceAll("(ar1)", "^pREBUTTAL ARGUMENT FOR THE " & UCase(vParty1Name) & " BY " & UCase(vMrMs2) & ". " & UCase(vLastName2) & "^p", "TC ""Rebuttal Argument for the " & vParty1Name & " by " & vMrMs2 & ". " & vLastName2 & """ \f a")
+        Call FieldReplaceAll("(ao1)", "^pOPENING STATEMENT FOR THE " & UCase(vParty1Name) & " BY " & UCase(vMrMs2) & ". " & UCase(vLastName2) & "^p", "TC ""Opening Statement for the " & vParty1Name & " by " & vMrMs2 & ". " & vLastName2 & """ \f a")
+        Call FieldReplaceAll("(ac1)", "^pCLOSING ARGUMENT FOR THE " & UCase(vParty1Name) & " BY " & UCase(vMrMs2) & ". " & UCase(vLastName2) & "^p", "TC ""Closing Argument for the " & vParty1Name & " by " & vMrMs2 & ". " & vLastName2 & """ \f a")
+        Call SingleReplaceAll("(sbb)", "^p(Sidebar begins at ##:## ap.m.)^p")
+        Call SingleReplaceAll("(sbe)", "^p(Sidebar ends at ##:## ap.m.)^p")
+        Call SingleReplaceAll("(rrr)", "^p(Recess taken from ##:## ap.m. to ##:## ap.m.)^p")
+        Call SingleReplaceAll("(sbn)", "^p(Sidebar taken from ##:## ap.m. to ##:## ap.m.)^p")
+        Call SingleReplaceAll("(jen)", "^p(Jury panel enters at ##:## ap.m.)^p")
+        Call SingleReplaceAll("(jex)", "^p(Jury panel exits at ##:## ap.m.)^p")
+        Call SingleReplaceAll("(pjn)", "^p(Prospective jury panel enters at ##:## ap.m.)^p")
+        Call SingleReplaceAll("(pjx)", "^p(Prospective jury panel exits at ##:## ap.m.)^p")
+        Call SingleReplaceAll("(wsu)", "^p(Witness summoned.)^p")
+        Call SingleReplaceAll("(wsw)", "^p(The witness was sworn.)^p")
+        Call SingleReplaceAll("(vub)", "^p(Video played at ##:## ap.m.)^p")
+        Call SingleReplaceAll("(vue)", "^p(Video ends at ##:## ap.m.)^p")
+        Call SingleReplaceAll("(vup)", "^p(Video played from ##:## ap.m. to ##:## ap.m.)^p")
+        Call SingleReplaceAll("(aup)", "^p(Audio played from ##:## ap.m. to ##:## ap.m.)^p")
+        Call SingleReplaceAll("(aue)", "^p(Audio ends at ##:## ap.m.)^p")
+        Call SingleReplaceAll("(aub)", "^p(Audio begins at ##:## ap.m.)^p")
+        Call SingleReplaceAll("(ccc)", "^p(Counsel confer.)^p")
+        Call SingleReplaceAll("(pcc)", "^p(Parties confer.)^p")
+        Call SingleReplaceAll("(ppr)", "^p(The witness paused to review the document.)^p")
+        Call SingleReplaceAll("(nrp)", "^p(No response.)^p")
+        Call SingleReplaceAll("(rrr)", "^p(Whereupon, at ##:## ap.m., a recess was taken.)^p")
+        Call SingleReplaceAll("(rrl)", "^p(Whereupon, at ##:## ap.m., a luncheon recess was taken.)^p")
+        Call SingleReplaceAll("(ppp)", "^p(Pause.)^p")
+        Call SingleReplaceAll("(otr)", "^p(Off the record.)^p")
+        Call SingleReplaceAll("(dtr)", "^p(Discussion held off the record.)^p")
+        Call SingleReplaceAll("(wxu)", "^p(Witness excused.)^p")
+        Call SingleReplaceAll("(cco)", "^p(Whereupon, the following proceedings were held in open court outside the presence of the jury:)^p")
+        Call SingleReplaceAll("(cci)", "^p(Whereupon, the following proceedings were held in open court in the presence of the jury:)^p")
+        Call SingleReplaceAll("Uh-huh.", "Uh-huh (affirmative response).")
+        Call SingleReplaceAll("Huh-uh.", "Huh-uh (negative response).")
+        'Call FieldReplaceAll(, , )
+        
+        If Not drViewJFAppQ.EOF Then drViewJFAppQ.MoveNext
+        
+        If Not drViewJFAppQ.EOF Then
+            vMrMs2 = drViewJFAppQ!MrMs 'get MrMs & LastName variables
+            vLastName2 = drViewJFAppQ!LastName
+            Call FieldReplaceAll("(aa2)", "^pARGUMENT FOR THE " & UCase(vParty2Name) & " BY " & UCase(vMrMs2) & ". " & UCase(vLastName2) & "^p", "TC ""Argument for the " & vParty2Name & " by " & vMrMs2 & ". " & vLastName2 & """ \f a")
+            Call FieldReplaceAll("(ar2)", "^pREBUTTAL ARGUMENT FOR THE " & UCase(vParty2Name) & " BY " & UCase(vMrMs2) & ". " & UCase(vLastName2) & "^p", "TC ""Rebuttal Argument for the " & vParty2Name & " by " & vMrMs2 & ". " & vLastName2 & """ \f a")
+            Call FieldReplaceAll("(ao2)", "^pOPENING STATEMENT FOR THE " & UCase(vParty2Name) & " BY " & UCase(vMrMs2) & ". " & UCase(vLastName2) & "^p", "TC ""Opening Statement for the " & vParty2Name & " by " & vMrMs2 & ". " & vLastName2 & """ \f a")
+            Call FieldReplaceAll("(ac2)", "^pCLOSING ARGUMENT FOR THE " & UCase(vParty2Name) & " BY " & UCase(vMrMs2) & ". " & UCase(vLastName2) & "^p", "TC ""Closing Argument for the " & vParty2Name & " by " & vMrMs2 & ". " & vLastName2 & """ \f a")
+        End If
+        
+        If Not drViewJFAppQ.EOF Then drViewJFAppQ.MoveNext
+        
+        If Not drViewJFAppQ.EOF Then
+            vMrMs2 = drViewJFAppQ!MrMs 'get MrMs & LastName variables
+            vLastName2 = drViewJFAppQ!LastName
+            Call FieldReplaceAll("(aa3)", "^pARGUMENT FOR THE " & UCase(vParty2Name) & " BY " & UCase(vMrMs2) & ". " & UCase(vLastName2) & "^p", "TC ""Argument for the " & vParty2Name & " by " & vMrMs2 & ". " & vLastName2 & """ \f a")
+            Call FieldReplaceAll("(ar3)", "^pREBUTTAL ARGUMENT FOR THE " & UCase(vParty2Name) & " BY " & UCase(vMrMs2) & ". " & UCase(vLastName2) & "^p", "TC ""Rebuttal Argument for the " & vParty2Name & " by " & vMrMs2 & ". " & vLastName2 & """ \f a")
+            Call FieldReplaceAll("(ao3)", "^pOPENING STATEMENT FOR THE " & UCase(vParty2Name) & " BY " & UCase(vMrMs2) & ". " & UCase(vLastName2) & "^p", "TC ""Opening Statement for the " & vParty2Name & " by " & vMrMs2 & ". " & vLastName2 & """ \f a")
+            Call FieldReplaceAll("(ac3)", "^pCLOSING ARGUMENT FOR THE " & UCase(vParty2Name) & " BY " & UCase(vMrMs2) & ". " & UCase(vLastName2) & "^p", "TC ""Closing Argument for the " & vParty2Name & " by " & vMrMs2 & ". " & vLastName2 & """ \f a")
+           End If
+        
+        If Not drViewJFAppQ.EOF Then drViewJFAppQ.MoveNext
+        
+        If Not drViewJFAppQ.EOF Then
+            vMrMs2 = drViewJFAppQ!MrMs 'get MrMs & LastName variables
+            vLastName2 = drViewJFAppQ!LastName
+            Call FieldReplaceAll("(aa4)", "^pARGUMENT FOR THE " & UCase(vParty2Name) & " BY " & UCase(vMrMs2) & ". " & UCase(vLastName2) & "^p", "TC ""Argument for the " & vParty2Name & " by " & vMrMs2 & ". " & vLastName2 & """ \f a")
+            Call FieldReplaceAll("(ar4)", "^pREBUTTAL ARGUMENT FOR THE " & UCase(vParty2Name) & " BY " & UCase(vMrMs2) & ". " & UCase(vLastName2) & "^p", "TC ""Rebuttal Argument for the " & vParty2Name & " by " & vMrMs2 & ". " & vLastName2 & """ \f a")
+            Call FieldReplaceAll("(ao4)", "^pOPENING STATEMENT FOR THE " & UCase(vParty2Name) & " BY " & UCase(vMrMs2) & ". " & UCase(vLastName2) & "^p", "TC ""Opening Statement for the " & vParty2Name & " by " & vMrMs2 & ". " & vLastName2 & """ \f a")
+            Call FieldReplaceAll("(ac4)", "^pCLOSING ARGUMENT FOR THE " & UCase(vParty2Name) & " BY " & UCase(vMrMs2) & ". " & UCase(vLastName2) & "^p", "TC ""Closing Argument for the " & vParty2Name & " by " & vMrMs2 & ". " & vLastName2 & """ \f a")
+        End If
+        
+        If Not drViewJFAppQ.EOF Then drViewJFAppQ.MoveNext
+        
+        If Not drViewJFAppQ.EOF Then
+            vMrMs2 = drViewJFAppQ!MrMs 'get MrMs & LastName variables
+            vLastName2 = drViewJFAppQ!LastName
+            Call FieldReplaceAll("(aa5)", "^pARGUMENT FOR THE " & UCase(vParty2Name) & " BY " & UCase(vMrMs2) & ". " & UCase(vLastName2) & "^p", "TC ""Argument for the " & vParty2Name & " by " & vMrMs2 & ". " & vLastName2 & """ \f a")
+            Call FieldReplaceAll("(ar5)", "^pREBUTTAL ARGUMENT FOR THE " & UCase(vParty2Name) & " BY " & UCase(vMrMs2) & ". " & UCase(vLastName2) & "^p", "TC ""Rebuttal Argument for the " & vParty2Name & " by " & vMrMs2 & ". " & vLastName2 & """ \f a")
+            Call FieldReplaceAll("(ao5)", "^pOPENING STATEMENT FOR THE " & UCase(vParty2Name) & " BY " & UCase(vMrMs2) & ". " & UCase(vLastName2) & "^p", "TC ""Opening Statement for the " & vParty2Name & " by " & vMrMs2 & ". " & vLastName2 & """ \f a")
+            Call FieldReplaceAll("(ac5)", "^pCLOSING ARGUMENT FOR THE " & UCase(vParty2Name) & " BY " & UCase(vMrMs2) & ". " & UCase(vLastName2) & "^p", "TC ""Closing Argument for the " & vParty2Name & " by " & vMrMs2 & ". " & vLastName2 & """ \f a")
+        End If
+        
+        If Not drViewJFAppQ.EOF Then drViewJFAppQ.MoveNext
+        
+        If Not drViewJFAppQ.EOF Then
+            vMrMs2 = drViewJFAppQ!MrMs 'get MrMs & LastName variables
+            vLastName2 = drViewJFAppQ!LastName
+            Call FieldReplaceAll("(aa6)", "^pARGUMENT FOR THE " & UCase(vParty2Name) & " BY " & UCase(vMrMs2) & ". " & UCase(vLastName2) & "^p", "TC ""Argument for the " & vParty2Name & " by " & vMrMs2 & ". " & vLastName2 & """ \f a")
+            Call FieldReplaceAll("(ar6)", "^pREBUTTAL ARGUMENT FOR THE " & UCase(vParty2Name) & " BY " & UCase(vMrMs2) & ". " & UCase(vLastName2) & "^p", "TC ""Rebuttal Argument for the " & vParty2Name & " by " & vMrMs2 & ". " & vLastName2 & """ \f a")
+            Call FieldReplaceAll("(ao6)", "^pOPENING STATEMENT FOR THE " & UCase(vParty2Name) & " BY " & UCase(vMrMs2) & ". " & UCase(vLastName2) & "^p", "TC ""Opening Statement for the " & vParty2Name & " by " & vMrMs2 & ". " & vLastName2 & """ \f a")
+            Call FieldReplaceAll("(ac6)", "^pCLOSING ARGUMENT FOR THE " & UCase(vParty2Name) & " BY " & UCase(vMrMs2) & ". " & UCase(vLastName2) & "^p", "TC ""Closing Argument for the " & vParty2Name & " by " & vMrMs2 & ". " & vLastName2 & """ \f a")
+        End If
+        
+    GoTo ParenDone
+    End With
+End If
+ParenDone:
+MsgBox "Finished looping through TC entries for the various parties."
+
+drViewJFAppQ.Close
+Set drViewJFAppQ = Nothing
+oCourtCoverWD.Save
+oCourtCoverWD.Close
+oWordApp.Quit
+Set oCourtCoverWD = Nothing
+Set oWordApp = Nothing
+End Function
