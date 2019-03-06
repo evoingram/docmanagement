@@ -1,0 +1,59 @@
+
+Function FieldReplaceAll(sTexttoSearch As String, sReplacementText As String, sFieldText As String)
+'============================================================================
+' Name        : FieldReplaceAll
+' Author      : Erica L Ingram
+' Copyright   : 2019, A Quo Co.
+' Call command: Call FieldReplaceAll(sTexttoSearch, sReplacementText, sFieldText)
+' Description : one replace TC entry function for ones with field entry
+'============================================================================
+
+Dim oWordApp As Object, oWordDoc As Object
+Dim sFileName As String
+
+sFileName = "T:\In Progress\" & vCourtDatesID & "\" & vCourtDatesID & "-CourtCover.docx" 'file name to do find/replaces in
+
+
+Set oWordApp = GetObject(, "Word.Application")
+oWordApp.Visible = False
+Set oWordDoc = oWordApp.Documents.Add(sFileName)
+With oWordDoc.Application
+    .Selection.Find.ClearFormatting
+    
+    With .Selection.Find
+        .Text = sTexttoSearch
+        .Replacement.Text = sReplacementText
+        .Forward = True
+        .Wrap = wdFindContinue
+        .Format = False
+        .MatchCase = False
+        .MatchWholeWord = False
+        .MatchWildcards = False
+        .MatchSoundsLike = False
+        .MatchAllWordForms = False
+    End With
+    
+    With .Selection
+        If .Find.Forward = True Then
+            .Collapse Direction:=wdCollapseStart
+        Else
+            .Collapse Direction:=wdCollapseEnd
+        End If
+        .Find.Execute Replace:=wdReplaceOne
+        If .Find.Forward = True Then
+            .Collapse Direction:=wdCollapseEnd
+        Else
+            .Collapse Direction:=wdCollapseStart
+        End If
+        
+        While .Find.Found
+            .Find.Execute
+            .Fields.Add Type:=wdFieldEmpty, Text:=sFieldText, PreserveFormatting:=False, Range:=.Range 'sFieldText sample = "TC ""WitnessName"" \l 2-3"
+            .Find.Execute
+        Wend
+    
+    End With
+    
+End With
+
+End Function
