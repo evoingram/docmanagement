@@ -1,0 +1,43 @@
+
+
+Function SingleReplaceAll(sTexttoSearch As String, sReplacementText As String)
+'============================================================================
+' Name        : SingleReplaceAll
+' Author      : Erica L Ingram
+' Copyright   : 2019, A Quo Co.
+' Call command: Call SingleReplaceAll(sTexttoSearch, sReplacementText)
+' Description : one replace TC entry function for ones with no field entry
+'============================================================================
+
+Dim oWordApp As Object, oWordDoc As Object
+Dim sFileName As String
+
+Set oWordApp = GetObject(, "Word.Application")
+sFileName = "T:\In Progress\" & vCourtDatesID & "\" & vCourtDatesID & "-CourtCover.docx" 'file name to do find/replaces in
+oWordApp.Visible = False
+Set oWordDoc = oWordApp.Documents.Add(sFileName)
+
+With oWordDoc.Application
+
+    .Selection.Find.ClearFormatting
+    
+    With .Selection.Find
+        .Text = sTexttoSearch
+        .Replacement.Text = sReplacementText
+        .Forward = True
+        .Wrap = wdFindContinue
+        .Format = False
+        .MatchCase = False
+        .MatchWholeWord = False
+        .MatchWildcards = False
+        .MatchSoundsLike = False
+        .MatchAllWordForms = False
+    End With
+    
+    While .Selection.Find.Found
+        .Selection.Find.Execute Replace:=wdReplaceAll
+    Wend
+    
+End With
+
+End Function
