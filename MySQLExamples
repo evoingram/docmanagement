@@ -1,3 +1,5 @@
+'Some examples of queries in my database.
+
 SELECT CommunicationHistory.CourtDatesID, Format([CommunicationHistory].[DateCreated],"mm/dd/yyyy") AS DateCreated, CommunicationHistory.FileHyperlink1
 FROM CommunicationHistory
 WHERE CommunicationHistory.CourtDatesID Is Null;
