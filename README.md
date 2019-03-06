@@ -35,7 +35,16 @@ Short Function Description:
 		
 	SendWordDocAsEmail:  
 		sends Word document as an e-mail body with optional attachments
-
+	
+	TCEntryReplacementPARENT:
+	 	parent function that finds certain entries within a transcript & assigns TC entries to them for indexing purposes
+  	
+	TCEntryReplacementCHILD-SingleReplaceAll
+		one replace TC entry function for ones with no field entry
+  	
+	TCEntryReplacementCHILD-FieldReplaceAll
+		one replace TC entry function for ones with field entry
   
-  
+  	~MySQLExamples
+		samples of actual queries from my database.
   
