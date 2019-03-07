@@ -1,0 +1,69 @@
+
+
+Function AcrobatGetNumPages(sCourtDatesID)
+'============================================================================
+' Name        : AcrobatGetNumPages
+' Author      : Erica L Ingram
+' Copyright   : 2019, A Quo Co.
+' Call command: Call AcrobatGetNumPages(sCourtDatesID)
+' Description : gets number of pages from PDF and confirms with you
+        'IS TOA ON SECOND PAGE?
+                'IF YES, MINUS TWO PAGES
+                'IF NO, MINUS ONE PAGE
+'============================================================================
+
+Dim dbAQC As Database
+Dim qdf As QueryDef
+Dim oAcrobatDoc As Object
+Dim sTranscriptPDFPath As String, sActualQuantity1 As String, sActualQuantity As String
+Dim sQuestion As String, sAnswer As String
+
+Set oAcrobatDoc = New AcroPDDoc
+
+sTranscriptPDFPath = "T:\In Progress\" & vCourtDatesID & "\" & vCourtDatesID & "-TRANSCRIPT-FINAL.pdf"
+
+oAcrobatDoc.Open (sTranscriptPDFPath) 'update file location
+
+sActualQuantity = oAcrobatDoc.GetNumPages
+sQuestion = "This transcript came to " & sActualQuantity & " pages.  Is the table of authorities on a separate page from the CoA?"
+sAnswer = MsgBox(sQuestion, vbQuestion + vbYesNo, "???")
+If answer = vbNo Then 'IF NO THEN THIS HAPPENS
+    MsgBox "Page count will be reduced by only one."
+    sActualQuantity = sActualQuantity - 1
+    sQuestion = "This transcript came to " & sActualQuantity & " billable pages.  Is that page count correct?"
+    sAnswer = MsgBox(sQuestion, vbQuestion + vbYesNo, "???")
+    If sAnswer = vbNo Then 'IF NO THEN THIS HAPPENS
+        sActualQuantity1 = InputBox("How many billable pages was this transcript?")
+        sActualQuantity = sActualQuantity1
+    Else 'if yes then this happens
+    End If
+Else 'if yes then this happens
+    MsgBox "Page count will be reduced by two."
+    sActualQuantity = sActualQuantity - 2
+    sQuestion = "This transcript came to " & sActualQuantity & " billable pages.  Is that page count correct?"
+    sAnswer = MsgBox(sQuestion, vbQuestion + vbYesNo, "???")
+    If sAnswer = vbNo Then 'IF NO THEN THIS HAPPENS
+        sActualQuantity1 = InputBox("How many billable pages was this transcript?")
+        sActualQuantity = sActualQuantity1
+    Else 'if yes then this happens
+        sActualQuantity1 = InputBox("How many billable pages was this transcript?")
+        sActualQuantity = sActualQuantity1
+    End If
+End If
+
+oAcrobatDoc.Close
+
+'"UPDATE CourtDates.ActualQuantity ON CourtDates.ID = " & vCourtDatesID & " SET CourtDates.ActualQuantity = " & sActualQuantity & ";"
+Set dbAQC = CurrentDb
+
+sSQL = "UPDATE [CourtDates] SET [CourtDates].[ActualQuantity] = " & sActualQuantity & " WHERE [CourtDates].[ID] = " & vCourtDatesID & ";"
+Set qdf = dbAQC.CreateQueryDef("", sSQL)
+
+dbAQC.Execute sSQL
+
+Set qdf = Nothing
+
+DoCmd.OpenQuery "FinalUnitPriceQuery"  'PRE-QUERY FOR FINAL SUBTOTAL
+dbAQC.Execute "INVUpdateFinalUnitPriceQuery" 'UPDATES FINAL SUBTOTAL
+dbAQC.Close
+End Function
