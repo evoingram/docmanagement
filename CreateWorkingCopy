@@ -64,7 +64,7 @@ Else 'Code for yes
             
         Next x
         'lock up header, leave all other sections unlocked
-        .Protect Type:=wdAllowOnlyFormFields, noReset:=True, password:="wrts0419"
+        .Protect Type:=wdAllowOnlyFormFields, noReset:=True, password:="password"
         .SaveAs filename:=sWCTranscriptsPath, FileFormat:=wdFormatXMLDocument 'save as file
     End With
 End If
