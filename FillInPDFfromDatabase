@@ -1,0 +1,74 @@
+
+Function AcrobatKCIInvoice()
+'============================================================================
+' Name        : AcrobatKCIInvoice
+' Author      : Erica L Ingram
+' Copyright   : 2019, A Quo Co.
+' Call command: Call AcrobatKCIInvoice
+' Description : inserts page count & other transcript info into KCI invoice PDF
+'============================================================================
+
+On Error GoTo Error_Handler
+Dim sKCIInvoicePath As String
+Dim joAApp As Acrobat.AcroApp
+Dim joAAVDoc As Acrobat.AcroAVDoc
+Dim joAPDDoc As Acrobat.AcroPDDoc
+Dim joFormApp As AFORMAUTLib.AFormApp
+Dim joFormFields As AFORMAUTLib.Fields
+Dim joFormField As AFORMAUTLib.Field
+Dim sCaseName As String, sContactName As String
+
+'global variable
+sCourtDatesID = Forms![NewMainMenu]![ProcessJobSubformNMM].Form![JobNumberField]
+
+
+sKCIInvoicePath = "T:\In Progress\" & sCourtDatesID & "\WorkingFiles\" & sCourtDatesID & "-KCICompleted.pdf"
+
+FileCopy "T:\Document Generator\templates\KCICompleted.pdf", sKCIInvoicePath
+Call GetCaseInfoQDFRecordset  'refresh transcript info
+
+sContactName = sFirstName & " " & sLastName 'made from global variables set from Call GetCaseInfoQDFRecordset
+sCaseName = sParty1 & " v. " & sParty2 'made from global variables set from Call GetCaseInfoQDFRecordset
+
+Set joAApp = New AcroApp
+Set joAAVDoc = CreateObject("AcroExch.AVDoc")
+If joAAVDoc.Open(sKCIInvoicePath, "") Then
+    joAAVDoc.Maximize (1)
+    Set joAPDDoc = joAAVDoc.GetPDDoc()
+    Set joFormApp = CreateObject("AFormAut.App")
+    Set joFormFields = joFormApp.Fields
+    For Each joFormField In joFormFields
+            If joFormField.Name = "Case Name" Then joFormField.Value = sCaseName 
+            If joFormField.Name = "Trial Court No" Then joFormField.Value = sCaseNumber1 'global variable set from Call GetCaseInfoQDFRecordset
+            If joFormField.Name = "County" Then joFormField.Value = sJurisdiction 'global variable set from Call GetCaseInfoQDFRecordset
+            If joFormField.Name = "COA Number" Then joFormField.Value = sCaseNumber2 'global variable set from Call GetCaseInfoQDFRecordset
+            If joFormField.Name = "Servie Requested By" Then joFormField.Value = sContactName
+            If joFormField.Name = "310amt" Then joFormField.Value = sActualQuantity 'global variable set from Call GetCaseInfoQDFRecordset
+            If joFormField.Name = "Date" Then joFormField.Value = Date
+    Next joFormField
+    
+sKCIInvoicePath = "T:\In Progress\" & sCourtDatesID & "\WorkingFiles\" & sCourtDatesID & "-KCICompleted1.pdf"
+
+joAPDDoc.Save PDSaveFull, sKCIInvoicePath
+joAPDDoc.Close
+
+End If
+
+Exit_Handler:
+joAAVDoc.Close True
+
+Set joAPDDoc = Nothing
+Set joAAVDoc = Nothing
+Set joAApp = Nothing
+
+MsgBox "KCI invoice completed."
+
+Exit Function
+
+
+Error_Handler:
+MsgBox Err.Number & ": " & Err.Description, vbCritical, "Error"
+GoTo Exit_Handler
+Resume
+
+End Function
