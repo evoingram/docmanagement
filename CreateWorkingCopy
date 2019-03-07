@@ -37,7 +37,7 @@ Else 'Code for yes
     With oWordDoc
         'add continuous section break at top
         .Paragraphs(1).Range.InsertBreak Type:=wdSectionBreakContinuous
-        If .ProtectionType <> wdNoProtection Then .Unprotect password:="wrts0419"
+        If .ProtectionType <> wdNoProtection Then .Unprotect password:="password"
         'removes doc info and macro code within documentB
         .RemoveDocumentInformation (wdRDIAll)
         For Each vbComp In .VBProject.VBComponents
