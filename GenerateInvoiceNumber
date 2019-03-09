@@ -1,0 +1,50 @@
+
+Function GenerateInvoiceNumber()
+'============================================================================
+' Name        : GenerateInvoiceNumber
+' Author      : Erica L Ingram
+' Copyright   : 2019, A Quo Co.
+' Call command: Call GenerateInvoiceNumber
+' Description : generates invoice number
+'               global variables sCourtDatesID, sInvoiceNumber
+'============================================================================
+Dim rstTempCourtDates As DAO.Recordset, rstMaxCourtDates As DAO.Recordset, rstCourtDates As DAO.Recordset
+Dim sQuestion As String, sAnswer As String
+
+Set rstMaxCourtDates = CurrentDb.OpenRecordset("SELECT MAX(InvoiceNo) FROM CourtDates;")
+sInvoiceNumber = rstMaxCourtDates.Fields(0).Value
+
+Set rstCourtDates = CurrentDb.OpenRecordset("SELECT MAX(ID) as CourtDatesID FROM CourtDates;")
+rstCourtDates.MoveFirst
+sCourtDatesID = rstCourtDates.Fields("CourtDatesID").Value
+
+
+sQuestion = "The most recent invoice number is " & sInvoiceNumber & _
+".  Would you like to use " & sInvoiceNumber + 1 & " as your next invoice number?"
+
+sAnswer = MsgBox(sQuestion, vbQuestion + vbYesNo, "???")
+
+If sAnswer = vbNo Then 'Code for No
+    sInvoiceNumber = InputBox("Enter your next Invoice Number.  The most recent one was " & sInvoiceNumber & ".")
+Else 'Code for yes
+    sInvoiceNumber = sInvoiceNumber + 1
+End If
+    
+'insert calculated fields into tempFPtable
+Set rstTempCourtDates = CurrentDb.OpenRecordset("qSelect1TempCourtDates")
+rstTempCourtDates.Edit
+rstTempCourtDates.Fields("InvoiceNo") = sInvoiceNumber
+rstTempCourtDates.Update
+rstTempCourtDates.Close
+
+rstCourtDates.Close
+
+Set rstCourtDates = CurrentDb.OpenRecordset("SELECT * FROM CourtDates WHERE [ID]=" & sCourtDatesID & ";")
+rstCourtDates.Edit
+rstCourtDates.Fields("InvoiceNo") = sInvoiceNumber
+rstCourtDates.Update
+
+rstCourtDates.Close
+rstMaxCourtDates.Close
+
+End Function
