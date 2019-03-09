@@ -1,11 +1,11 @@
 
-Function AcrobatKCIInvoice()
+Function FillInPDFfromDatabase()
 '============================================================================
-' Name        : AcrobatKCIInvoice
+' Name        : FillInPDFfromDatabase
 ' Author      : Erica L Ingram
 ' Copyright   : 2019, A Quo Co.
-' Call command: Call AcrobatKCIInvoice
-' Description : inserts page count & other transcript info into KCI invoice PDF
+' Call command: Call FillInPDFfromDatabase
+' Description : inserts page count & other transcript info into invoice PDF
 '============================================================================
 
 On Error GoTo Error_Handler
