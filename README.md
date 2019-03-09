@@ -9,6 +9,9 @@ Short Function Description:
 	AddAQCExamStyle:  
 		finds specific phrases in activedocument(transcript) and applies a specific style
 		
+	AutoCalculateInterest:
+		add 1% interest cost after every 7 days payment not made
+		
 	CDLabelMergeF:  
 		makes CD label and prompts for print or no
 		
