@@ -1,0 +1,80 @@
+
+Function AutoCalculateInterest()
+'============================================================================
+' Name        : AutoCalculateInterest
+' Author      : Erica L Ingram
+' Copyright   : 2019, A Quo Co.
+' Call command: Call AutoCalculateInterest
+' Description : add 1% interest cost after every 7 days payment not made
+'               global variables sCourtDatesID, dInvoiceDate, sSubtotal, sPaymentSum, bFactoringApproved
+'============================================================================
+Dim rstCustomers As DAO.Recordset, rstCourtDates As DAO.Recordset
+Dim dInvoiceDate As String
+Dim sOrderingID As Integer
+Dim dDateDifference
+
+Set rstCourtDates = CurrentDb.OpenRecordset("CourtDates")
+
+If Not (rstCourtDates.EOF And rstCourtDates.BOF) Then 'For each CourtDates.ID
+
+    rstCourtDates.MoveFirst
+    
+    Do Until rstCourtDates.EOF = True 'get certain values/information
+    
+        sCourtDatesID = rstCourtDates.Fields("ID").Value
+        sOrderingID = rstCourtDates.Fields("OrderingID").Value
+        dInvoiceDate = rstCourtDates.Fields("InvoiceDate").Value
+        sSubtotal = rstCourtDates.Fields("FinalPrice").Value
+        sPaymentSum = Nz(rstCourtDates.Fields("PaymentSum").Value, 0)
+        
+        If Not IsNull(dInvoiceDate) Then
+        
+            If IsNull(sPaymentSum) Then
+            
+                Set rstCustomers = CurrentDb.OpenRecordset("SELECT * FROM Customers WHERE [ID] = " & sOrderingID & ";")
+                bFactoringApproved = rstCustomers.Fields("FactoringApproved").Value
+                rstCustomers.Close
+                Set rstCustomers = Nothing
+                If bFactoringApproved = "True" Then
+                    
+                    dDateDifference = DateDiff("d", Now, dInvoiceDate) 'calculate current date difference
+                
+                    If dDateDifference < 0 And dDateDifference > -7 Then 'calculate interest amount
+                        sInterestAmount = 0
+                    ElseIf dDateDifference < -7 And dDateDifference > -14 Then
+                        sInterestAmount = sSubtotal * 0.01
+                    ElseIf dDateDifference < -14 And dDateDifference > -21 Then
+                        sInterestAmount = sSubtotal * 0.02
+                    ElseIf dDateDifference < -21 And dDateDifference > -28 Then
+                        sInterestAmount = sSubtotal * 0.03
+                    ElseIf dDateDifference < -28 And dDateDifference > -35 Then
+                        sInterestAmount = sSubtotal * 0.04
+                    ElseIf dDateDifference < -35 Then
+                        sInterestAmount = sSubtotal * 0.05
+                    Else
+                    End If
+                    
+                    rstCourtDates.Edit
+                    rstCourtDates.Fields("FactoringCost").Value = sInterestAmount
+                    rstCourtDates.Update
+                    
+                Else
+                End If
+                
+            Else
+            End If
+            
+        Else
+        End If
+        
+    rstCourtDates.MoveNext
+    Loop
+    
+    rstCourtDates.Close
+    Set rstCourtDates = Nothing
+    Set rstCustomers = Nothing
+
+Else
+End If
+
+End Function
