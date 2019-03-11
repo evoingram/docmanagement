@@ -1,0 +1,60 @@
+
+
+Function pfAutoCorrect()
+'============================================================================
+' Name        : pfAutoCorrect
+' Author      : Erica L Ingram
+' Copyright   : 2019, A Quo Co.
+' Call command: Call pfAutoCorrect
+' Description : adds entries as listed on form (from matching table row) to rough draft autocorrect in Word
+'============================================================================
+
+Dim db As Database
+Dim flCurrentField As DAO.Field
+Dim sFieldName As String, sACShortcutsSQL As String, sFieldValue As String
+Dim rstAGShortcuts As DAO.Recordset
+
+sCourtDatesID = Forms![NewMainMenu]![ProcessJobSubformNMM].Form![JobNumberField]
+
+sACShortcutsSQL = "SELECT * FROM AGShortcuts WHERE [CourtDatesID] = " & sCourtDatesID & ";"
+
+Set db = CurrentDb()
+Set rstAGShortcuts = db.OpenRecordset(sACShortcutsSQL)
+
+With ActiveDocument
+
+    For Each flCurrentField In rstAGShortcuts.Fields
+    
+        sFieldName = LCase(flCurrentField.Name)
+        
+        If sFieldName = "CourtDatesID" Then
+            GoTo NextAGShortcut
+            
+        ElseIf sFieldName = "CasesID" Then
+            GoTo NextAGShortcut
+            
+        ElseIf sFieldName = "ID" Then
+            GoTo NextAGShortcut
+        Else
+            
+        End If
+        
+        If IsNull(rstAGShortcuts.Fields(sFieldName).Value) Or rstAGShortcuts.Fields(sFieldName).Value = "" Or rstAGShortcuts.Fields(sFieldName).Value = " " Then
+            GoTo NextAGShortcut
+            
+        Else
+            sFieldValue = rstAGShortcuts.Fields(sFieldName).Value
+            .Application.AutoCorrect.Entries.Add sFieldName, sFieldValue
+        
+        End If
+    
+NextAGShortcut:
+    Next
+
+End With
+    
+rstAGShortcuts.Close
+Set flCurrentField = Nothing
+Set rstAGShortcuts = Nothing
+
+End Function
