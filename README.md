@@ -44,7 +44,10 @@ Short Function Description:
 		
 	GenericExportandMailMerge:  
 		exports to specified template from T:\Document Generator\Templates and saves in T:\In Progress\sCourtDatesID\
-  
+		
+  	pfAutoCorrect:
+		adds autocorrect entries as listed on form (from matching table row) to rough draft autocorrect in Word
+		
   	ReadXML:  
 		reads shipping XML and sends "Shipped" email to client
 		
