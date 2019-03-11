@@ -1,44 +1,44 @@
 
-Function GenericExportandMailMerge(sQueryName As String, sTemplateName As String)
+Function pfGenericExportandMailMerge(sQueryName As String, sExportTopic As String)
 '============================================================================
-' Name        : GenericExportandMailMerge
+' Name        : pfGenericExportandMailMerge
 ' Author      : Erica L Ingram
 ' Copyright   : 2019, A Quo Co.
-' Call command: Call GenericExportandMailMerge(sQueryName, sTemplateName)
-' Description : exports to specified template from T:\Document Generator\Templates and saves in T:\In Progress\sCourtDatesID\
+' Call command: Call pfGenericExportandMailMerge(sQueryName, sExportTopic)
+' Description:  exports to specified template from T:\Document Generator\Templates and saves in T:\In Progress\####\
 '============================================================================
 
-Dim sTemplatePath As String, sLinkToExportedXLS As String, sCourtDatesID As String
-Dim oWordDoc As Object
-Dim qdfQuery As QueryDef
+Dim sExportedTemplatePath As String, sTemplatePath As String, sOutputPDF As String
+Dim sExportInfoCSVPath As String
+Dim oWordAppDoc As Object
+Dim qdf As QueryDef
 Dim rstQuery As DAO.Recordset
 
 sCourtDatesID = Forms![NewMainMenu]![ProcessJobSubformNMM].Form![JobNumberField]
-sTemplatePath = "T:\In Progress\" & sCourtDatesID & "\" & sCourtDatesID & "-" & sTemplateName & ".docx"
-sLinkToExportedXLS = "T:\In Progress\" & sCourtDatesID & "\WorkingFiles\" & sCourtDatesID & "-Temp-Export-" & sTemplateName & ".xls"
-
-Set qdfQuery = CurrentDb.QueryDefs(sQueryName)
-qdfQuery.Parameters(0) = sCourtDatesID
+sExportedTemplatePath = "T:\In Progress\" & sCourtDatesID & "\" & sCourtDatesID & "-" & sExportTopic & ".docx"
+sExportInfoCSVPath = "T:\In Progress\" & sCourtDatesID & "\WorkingFiles\" & sCourtDatesID & "-Temp-Export-" & sExportTopic & ".xls"
+sTemplatePath = "T:\Document Generator\Templates\" & sExportTopic & "-Template.docx"
+sOutputPDF = "T:\In Progress\" & sCourtDatesID & "\WorkingFiles\" & sCourtDatesID & "-" & sExportTopic & ".pdf"
+Set qdf = CurrentDb.QueryDefs(sQueryName)
+qdf.Parameters(0) = sCourtDatesID
 Set rstQuery = qdf.OpenRecordset
 
-DoCmd.OutputTo acOutputQuery, sQueryName, acFormatXLS, sLinkToExportedXLS, False
+DoCmd.OutputTo acOutputQuery, sQueryName, acFormatXLS, sExportInfoCSVPath, False
 
-Set oWordDoc = GetObject("T:\Document Generator\Templates\" & sTemplateName & "-Template.docx", "Word.Document")
-oWordDoc.Application.Visible = False
-oWordDoc.MailMerge.OpenDataSource Name:=sLinkToExportedXLS, ReadOnly:=True
-oWordDoc.MailMerge.Execute
+Set oWordAppDoc = GetObject(sTemplatePath, "Word.Document")
+oWordAppDoc.Application.Visible = False
 
-oWordDoc.MailMerge.MainDocumentType = wdNotAMergeDocument
-oWordDoc.Application.ActiveDocument.ExportAsFixedFormat _
-outputFileName:="T:\In Progress\" & sCourtDatesID & "\WorkingFiles\" & sCourtDatesID & "-" & sTemplateName & ".pdf", _
-ExportFormat:=wdExportFormatPDF
-oWordDoc.Application.ActiveDocument.SaveAs filename:=sTemplatePath
-oWordDoc.Application.ActiveDocument.Close
+oWordAppDoc.MailMerge.OpenDataSource Name:=sExportInfoCSVPath, ReadOnly:=True
+oWordAppDoc.MailMerge.Execute
+oWordAppDoc.MailMerge.MainDocumentType = wdNotAMergeDocument
+oWordAppDoc.Application.ActiveDocument.ExportAsFixedFormat outputFileName:=sOutputPDF, ExportFormat:=wdExportFormatPDF
+oWordAppDoc.Application.ActiveDocument.SaveAs filename:=sExportedTemplatePath
 
-Set oWordDoc = Nothing
+oWordAppDoc.Application.ActiveDocument.Close
+Set oWordAppDoc = Nothing
 rstQuery.Close
 Set rstQuery = Nothing
-qdfQuery.Close
-Set qdfQuery = Nothing
+qdf.Close
+Set qdf = Nothing
 
 End Function
