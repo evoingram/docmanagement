@@ -24,9 +24,6 @@ Short Function Description:
 	CommunicationHistoryAdd:  
 		adds entry to CommunicationHistory table in Access DB
 		
-	ConcordanceBuilder:  
-		builds word index in separate docx & PDF from transcript
-		
 	CreateIndexBMKs:  
 		replaces #TOC_# notations in transcript with bookmarks and then places index at bookmarks
 	
@@ -68,7 +65,10 @@ Short Function Description:
   	
 	TCEntryReplacementCHILD-FieldReplaceAll
 		one replace TC entry function for ones with field entry
-  
+  	
+	WordIndexBuilder:  
+		builds word index in separate docx & PDF from transcript
+		
   	~MySQLExamples
 		samples of actual queries from my database.
   
