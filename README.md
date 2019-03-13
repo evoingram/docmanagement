@@ -11,6 +11,9 @@ Short Function Description:
 
 	AddAQCExamStyle:  
 		finds specific phrases in activedocument(transcript) and applies a specific style
+	
+	BuildRCWsAndRCWHyperlinks:
+		Acquires RCWs and their hyperlinks, validates them, and adds an entry for each one to CitationHyperlinks table
 		
 	AutoCalculateInterest:
 		add 1% interest cost after every 7 days payment not made
