@@ -5,7 +5,7 @@ Function WordIndexBuilder()
 ' Author      : Erica L Ingram
 ' Copyright   : 2019, A Quo Co.
 ' Call command: Call WordIndexBuilder
-' Description : builds word index in separate PDF from transcript
+' Description : builds word index in separate docx from transcript
 '============================================================================
 
 Dim sInput As String, sFileName As String, sCourtDatesID As String
