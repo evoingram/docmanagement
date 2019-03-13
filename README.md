@@ -15,6 +15,9 @@ Short Function Description:
 	BuildRCWsAndRCWHyperlinks:
 		Acquires RCWs and their hyperlinks, validates them, and adds an entry for each one to CitationHyperlinks table
 		
+	BuildUSCRulesandUSCHyperlinks:
+		validates U.S.C. code citations and builds corresponding hyperlinks, no front matter, no appendices
+		
 	AutoCalculateInterest:
 		add 1% interest cost after every 7 days payment not made
 		
