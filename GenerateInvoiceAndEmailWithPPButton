@@ -1,0 +1,324 @@
+
+Function fSendPPEmailDeposit()
+'============================================================================
+' Name        : fSendPPEmailDeposit
+' Author      : Erica L Ingram
+' Copyright   : 2019, A Quo Co.
+' Call command: Call fSendPPEmailDeposit
+' Description : creates invoice in docx format and places linked PP button in two places in it
+                creates invoice email in docx format, places linked PP button in one place in it
+                sends invoice email as outlook email body
+'============================================================================
+Dim sInvoicePathPDF As String, sLine1 As String
+Dim sInvoiceNumber As String, vName As String, vPPInvoiceNo As String
+Dim sExportedTemplatePath As String, sTemplatePath As String
+Dim sExportInfoCSVPath As String, sQueryName As String, sHTMLPPB As String
+Dim sInvoicePathDocX As String, vPPLink As String, sFilePath As String
+Dim sFilePathHTML As String, sQuestion As String, sAnswer As String
+Dim sToEmail As String, sLine2 As String, sFileNameOut As String
+Dim sBuf As String, sTemp As String, sFileName As String
+Dim sFilePath As String 
+
+Dim oOutlookApp As Object, oOutlookMail As Object, oWordEditor As Object
+Dim oWordApp As Object, oWordDoc As Object
+
+Dim qdf As QueryDef
+Dim rstQuery As DAO.Recordset
+Dim iFileNumIn As Integer, iFileNumOut As Integer, iFileNum as Integer
+
+'your invoice docx template MUST contain the phrase "#PPB1#" AND "#PPB2#" without the quotes somewhere on it.
+'your e-mail docx template MUST contain the phrase "#PPB1#" without the quotes somewhere on it.
+
+
+sCourtDatesID = Forms![NewMainMenu]![ProcessJobSubformNMM].Form![JobNumberField]
+
+sQueryName = "TRInvoiQPlusCases"
+sExportedTemplatePath = "T:\In Progress\" & sCourtDatesID & "\WorkingFiles\" & sCourtDatesID & "-PP-DraftInvoiceEmail.docx"
+sExportInfoCSVPath = "T:\In Progress\" & sCourtDatesID & "\WorkingFiles\" & sCourtDatesID & "-Temp-Export-PP-DIE.xls"
+sTemplatePath = "T:\Document Generator\Templates\PP-DraftInvoiceEmail.docx"
+
+Set qdf = CurrentDb.QueryDefs(sQueryName)
+qdf.Parameters(0) = sCourtDatesID
+Set rstQuery = qdf.OpenRecordset
+
+sInvoiceNumber = rstQuery.Fields("CourtDates.InvoiceNo").Value
+sParty1 = rstQuery.Fields("Party1").Value
+sParty2 = rstQuery.Fields("Party2").Value
+sPPStatus = rstQuery.Fields("PPStatus").Value
+vPPInvoiceNo = rstQuery.Fields("PPID").Value
+vPPInvoiceNo = Right(vPPInvoiceNo, 20)
+vPPInvoiceNo = Replace(Replace(vPPInvoiceNo, " ", ""), "-", "")
+vName = vFirstName & " " & vLastName
+sToEmail = vNotes
+
+sInvoicePathPDF = "T:\In Progress\" & sCourtDatesID & "\" & sInvoiceNumber & ".pdf"
+sInvoicePathDocX = "T:\In Progress\" & sCourtDatesID & "\WorkingFiles\" & sInvoiceNumber & ".docx"
+
+'create pp invoice link
+vPPLink = "https://www.paypal.com/invoice/p/#" & vPPInvoiceNo
+vPPInvoiceNo = ""
+
+'create linked PP button html (construct string, save it into text file in job folder)
+sHTMLPPB = "<html><body><br><br><a href =" & Chr(34) & vPPLink & Chr(34) & _
+    "><img src=" & Chr(34) & "https://www.paypalobjects.com/webstatic/en_US/i/buttons/checkout-logo-large.png" & _
+        Chr(34) & "alt=" & Chr(34) & "Check out with PayPal" & Chr(34) & "/></a></body></html>"
+vPPLink = ""
+
+sFilePath = "T:\In Progress\" & sCourtDatesID & "\WorkingFiles\" & "PPButton.txt" 
+sFilePathHTML = "T:\In Progress\" & sCourtDatesID & "\WorkingFiles\" & "PPButton.html"
+
+
+'open txt file
+Open sFilePath For Output As #1
+Write #1, sHTMLPPB
+Close #1
+
+iFileNum = FreeFile
+Open sFilePath For Input As iFileNum
+
+Do Until EOF(iFileNum)
+    Line Input #iFileNum, sBuf
+    sTemp = sTemp & sBuf & vbCrLf
+Loop
+
+Close iFileNum
+
+sTemp = Replace(sTemp, Chr(34) & "<html>", "<html>") 'making the html file in the previous fashion adds extra quotes we don't need
+sTemp = Replace(sTemp, "</html>" & Chr(34), "</html>") 'these replacements get rid of those extra "s
+sTemp = Replace(sTemp, Chr(34) & Chr(34), Chr(34))
+
+'Save txt file 
+iFileNum = FreeFile
+Open sFilePath For Output As iFileNum
+Print #iFileNum, sTemp
+Close iFileNum
+
+sHTMLPPB = ""
+
+Name sFilePath As sFilePathHTML 'save as html file instead of txt now that the extra quotes are gone
+
+'paste linked PP button html into mail merged invoice/PQ at both bookmarks #PPB1# AND #PPB2#
+Set oWordApp = CreateObject("Word.Application")
+oWordApp.Visible = False
+
+Set oWordDoc = oWordApp.Documents.Open(sFilePathHTML) 'open button in word
+
+oWordDoc.Content.Copy
+oWordDoc.Close
+oWordApp.Quit
+
+Set oWordApp = Nothing
+Set oWordDoc = Nothing
+
+Set oWordApp = CreateObject("Word.Application")
+oWordApp.Visible = False
+
+Set oWordDoc = oWordApp.Documents.Open(sInvoicePathDocX) 'open invoice docx
+
+With oWordDoc.Application
+
+    .Selection.Find.ClearFormatting
+    .Selection.Find.Replacement.ClearFormatting
+    
+    With .Selection.Find 'find first bookmark
+        .text = "#PPB1#"
+        .Replacement.text = ""
+        .Forward = True
+        .Wrap = wdFindContinue
+        .Format = False
+        .MatchCase = False
+        .MatchWholeWord = False
+        .MatchWildcards = False
+        .MatchSoundsLike = False
+        .MatchAllWordForms = False
+        .Execute
+        If .Forward = True Then
+            .Application.Selection.Collapse Direction:=wdCollapseStart
+        Else
+            .Application.Selection.Collapse Direction:=wdCollapseEnd
+        End If
+        
+        .Execute Replace:=wdReplaceOne
+        
+        If .Forward = True Then
+            .Application.Selection.Collapse Direction:=wdCollapseEnd
+        Else
+            .Application.Selection.Collapse Direction:=wdCollapseStart
+        End If
+        
+        .Execute
+        .Application.Selection.PasteAndFormat (wdFormatOriginalFormatting) 'paste button
+        
+    End With
+    
+       
+    .Selection.Find.ClearFormatting
+    .Selection.Find.Replacement.ClearFormatting
+    
+    With .Selection.Find 'find second bookmark
+        .text = "#PPB2#"
+        .Replacement.text = ""
+        .Forward = True
+        .Wrap = wdFindContinue
+        .Format = False
+        .MatchCase = False
+        .MatchWholeWord = False
+        .MatchWildcards = False
+        .MatchSoundsLike = False
+        .MatchAllWordForms = False
+        .Execute
+        If .Forward = True Then
+            .Application.Selection.Collapse Direction:=wdCollapseStart
+        Else
+            .Application.Selection.Collapse Direction:=wdCollapseEnd
+        End If
+        .Execute Replace:=wdReplaceOne
+        If .Forward = True Then
+            .Application.Selection.Collapse Direction:=wdCollapseEnd
+        Else
+            .Application.Selection.Collapse Direction:=wdCollapseStart
+        End If
+        .Execute
+        .Application.Selection.PasteAndFormat (wdFormatOriginalFormatting) 'paste button
+    End With
+    
+    'save invoice
+    .ActiveDocument.SaveAs2 FileName:=sInvoicePathDocX
+    
+End With
+
+    oWordDoc.Close
+    oWordApp.Quit
+    
+    Set oWordApp = Nothing
+    Set oWordDoc = Nothing
+    
+
+'prompt to ask when pdf of invoice is made
+sQuestion = "Click yes after you have created your final invoice PDF at " & sInvoicePathPDF
+sAnswer = MsgBox(sQuestion, vbQuestion + vbYesNo, "???")
+
+If sAnswer = vbNo Then 'IF NO THEN THIS HAPPENS
+
+    
+    MsgBox "No invoice will be sent at this time."
+    
+    
+Else 'if yes then this happens
+    
+    
+    DoCmd.OutputTo acOutputQuery, sQueryName, acFormatXLS, sExportInfoCSVPath, False
+    
+    Set oWordApp = GetObject(sTemplatePath, "Word.Document")
+    oWordApp.Application.Visible = False
+    
+    oWordApp.MailMerge.OpenDataSource Name:=sExportInfoCSVPath, ReadOnly:=True
+    oWordApp.MailMerge.Execute
+    oWordApp.MailMerge.MainDocumentType = wdNotAMergeDocument
+    oWordApp.Application.ActiveDocument.SaveAs2 FileName:=sExportedTemplatePath 'merges invoice email
+
+    
+    
+    Set oWordApp = CreateObject("Word.Application")
+    oWordApp.Visible = False
+    
+    Set oWordDoc = oWordApp.Documents.Open(sFilePathHTML) 
+    
+    oWordDoc.Content.Copy
+    oWordDoc.Close
+    oWordApp.Quit
+    
+    Set oWordApp = Nothing
+    Set oWordDoc = Nothing
+
+    Set oWordApp = CreateObject("Word.Application")
+    Set oWordDoc = oWordApp.Documents.Open(sExportedTemplatePath) 'opens invoice email 
+
+
+With oWordDoc.Application
+
+    .Selection.Find.ClearFormatting
+    .Selection.Find.Replacement.ClearFormatting
+    
+    With .Selection.Find
+        .text = "#PPB1#"
+        .Replacement.text = ""
+        .Forward = True
+        .Wrap = wdFindContinue
+        .Format = False
+        .MatchCase = False
+        .MatchWholeWord = False
+        .MatchWildcards = False
+        .MatchSoundsLike = False
+        .MatchAllWordForms = False
+        .Execute
+        If .Forward = True Then
+            .Application.Selection.Collapse Direction:=wdCollapseStart
+        Else
+            .Application.Selection.Collapse Direction:=wdCollapseEnd
+        End If
+        
+        .Execute Replace:=wdReplaceOne
+        
+        If .Forward = True Then
+            .Application.Selection.Collapse Direction:=wdCollapseEnd
+        Else
+            .Application.Selection.Collapse Direction:=wdCollapseStart
+        End If
+        
+        .Execute
+        
+        .Application.Selection.PasteAndFormat (wdFormatOriginalFormatting) 'paste button html file
+        
+    End With
+    
+    .ActiveDocument.SaveAs2 FileName:=sExportedTemplatePath 'invoice email
+    
+    
+End With
+
+    oWordDoc.Close
+    oWordApp.Quit
+    
+    Set oWordApp = Nothing
+    Set oWordDoc = Nothing
+        
+    rstQuery.Close
+    Set rstQuery = Nothing
+    qdf.Close
+    Set qdf = Nothing
+    
+    Set oOutlookApp = CreateObject("Outlook.Application")
+    Set oOutlookMail = oOutlookApp.CreateItem(0)
+    On Error Resume Next
+    
+    Set oWordApp = CreateObject("Word.Application")
+    Set oWordDoc = oWordApp.Documents.Open(sExportedTemplatePath) 'invoice email file in docx format
+    oWordDoc.Content.Copy
+    oWordDoc.Close
+    oWordApp.Quit
+    
+    With oOutlookMail 'now, you should have an e-mail with a LINKED PP button as well as an invoice with two PP buttons on it.
+      'you may or may not need to change the page color (options --- >> page color) of the email once it opens
+      'but all other colors and fonts will display as you had them set in your template
+        .To = sToEmail
+        .CC = "inquiries@aquoco.co"
+        .Subject = "Deposit Invoice for " & vName & ", " & sParty1 & " v. " & sParty2
+        .BodyFormat = olFormatRichText
+        Set oWordEditor = .GetInspector.WordEditor
+        oWordEditor.Content.Paste
+        .Display
+        .Attachments.Add (sInvoicePathPDF)
+     End With
+    
+End If
+
+Set oOutlookApp = Nothing
+Set oOutlookMail = Nothing
+Set oWordEditor = Nothing
+Set oWordApp = Nothing
+Set oWordDoc = Nothing
+
+Call cAdminF.pfCommunicationHistoryAdd("PP Invoice Sent") 'record entry in comm history table for logs
+
+End Function
