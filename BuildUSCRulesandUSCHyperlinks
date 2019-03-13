@@ -22,6 +22,7 @@ Dim w As Long, x As Long, y As Long, z As Long
 ' Call command: Call pfUSCRuleScraper()
 ' Description:  validates and builds links for all us code, no front matter, no appendices
 '============================================================================
+'i build a delay in mine by calling a separate function so it requests only once every 22 seconds
 
 'this code:
   'builds valid U.S.C. code citations (example ## U.S.C. ###)
