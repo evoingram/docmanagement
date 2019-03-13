@@ -1,0 +1,114 @@
+
+
+Public Function pfCreateIndexesTOAs()
+'============================================================================
+' Name        : pfCreateIndexesTOAs
+' Author      : Erica L Ingram
+' Copyright   : 2019, A Quo Co.
+' Call command: Call pfCreateIndexesTOAs
+' Description : creates indexes and indexes certain things
+'============================================================================
+'bookmarks created from another piece of code, also posted here.
+        
+sCourtDatesID = Forms![NewMainMenu]![ProcessJobSubformNMM].Form![JobNumberField]
+sFileName = "T:\In Progress\" & sCourtDatesID & "\" & sCourtDatesID & "-CourtCover.docx"
+
+With ActiveDocument
+    Selection.Goto What:=wdGoToBookmark, Name:="IndexA"
+    With ActiveDocument.bookmarks
+        .DefaultSorting = wdSortByName
+        .ShowHidden = False
+    End With
+    With ActiveDocument
+    .TablesOfContents.Add Range:=.Application.Selection.Range, UseHeadingStyles:=False, UseFields:=True, TableID:="a", RightAlignPageNumbers:=True, IncludePageNumbers:=True, UseHyperlinks:=True
+        .indexes.Add Range:=Selection.Range, HeadingSeparator:= _
+            wdHeadingSeparatorNone, Type:=wdIndexRunin, NumberOfColumns:= _
+            wdAutoPosition, IndexLanguage:=wdEnglishUS
+        .indexes(1).TabLeader = wdTabLeaderDots
+    End With
+        Selection.Goto What:=wdGoToBookmark, Name:="IndexB"
+    With ActiveDocument.bookmarks
+        .DefaultSorting = wdSortByName
+        .ShowHidden = False
+    End With
+    With ActiveDocument
+    .TablesOfContents.Add Range:=.Application.Selection.Range, UseHeadingStyles:=False, UseFields:=True, TableID:="b", RightAlignPageNumbers:=True, IncludePageNumbers:=True, UseHyperlinks:=True
+        .indexes.Add Range:=Selection.Range, HeadingSeparator:= _
+            wdHeadingSeparatorNone, Type:=wdIndexRunin, NumberOfColumns:= _
+            wdAutoPosition, IndexLanguage:=wdEnglishUS
+        .indexes(1).TabLeader = wdTabLeaderDots
+    End With
+        Selection.Goto What:=wdGoToBookmark, Name:="IndexC"
+    With ActiveDocument.bookmarks
+        .DefaultSorting = wdSortByName
+        .ShowHidden = False
+    End With
+    With ActiveDocument
+    .TablesOfContents.Add Range:=.Application.Selection.Range, UseHeadingStyles:=False, UseFields:=True, TableID:="c", RightAlignPageNumbers:=True, IncludePageNumbers:=True, UseHyperlinks:=True
+        .indexes.Add Range:=Selection.Range, HeadingSeparator:= _
+            wdHeadingSeparatorNone, Type:=wdIndexRunin, NumberOfColumns:= _
+            wdAutoPosition, IndexLanguage:=wdEnglishUS
+        .indexes(1).TabLeader = wdTabLeaderDots
+    End With
+        Selection.Goto What:=wdGoToBookmark, Name:="IndexD"
+    With ActiveDocument.bookmarks
+        .DefaultSorting = wdSortByName
+        .ShowHidden = False
+    End With
+    With ActiveDocument
+    .TablesOfContents.Add Range:=.Application.Selection.Range, UseHeadingStyles:=False, UseFields:=True, TableID:="d", RightAlignPageNumbers:=True, IncludePageNumbers:=True, UseHyperlinks:=True
+        .indexes.Add Range:=Selection.Range, HeadingSeparator:= _
+            wdHeadingSeparatorNone, Type:=wdIndexRunin, NumberOfColumns:= _
+            wdAutoPosition, IndexLanguage:=wdEnglishUS
+        .indexes(1).TabLeader = wdTabLeaderDots
+    End With
+        Selection.Goto What:=wdGoToBookmark, Name:="IndexE"
+    With ActiveDocument.bookmarks
+        .DefaultSorting = wdSortByName
+        .ShowHidden = False
+    End With
+    .TablesOfContents.Add Range:=.Application.Selection.Range, UseHeadingStyles:=False, UseFields:=True, TableID:="e", RightAlignPageNumbers:=True, IncludePageNumbers:=True, UseHyperlinks:=True
+        .indexes.Add Range:=Selection.Range, HeadingSeparator:= _
+            wdHeadingSeparatorNone, Type:=wdIndexRunin, NumberOfColumns:= _
+            wdAutoPosition, IndexLanguage:=wdEnglishUS
+        .indexes(1).TabLeader = wdTabLeaderDots
+    
+    
+     ActiveDocument.Application.Selection.Goto What:=wdGoToBookmark, Name:="TOAC" 'cases TOA section
+     With ActiveDocument.bookmarks
+         .DefaultSorting = wdSortByName
+         .ShowHidden = False
+     End With
+     .TablesOfAuthorities.Add Range:=.Application.Selection.Range, Category:=1, Passim _
+         :=False, KeepEntryFormatting:=True
+     .TablesOfAuthorities(1).TabLeader = wdTabLeaderDots
+     .TablesOfAuthorities.Format = wdIndexIndent
+     
+     
+     ActiveDocument.Application.Selection.Goto What:=wdGoToBookmark, Name:="TOAR" 'rules/regs/code TOA section
+     With ActiveDocument.bookmarks
+         .DefaultSorting = wdSortByName
+         .ShowHidden = False
+     End With
+     
+     .TablesOfAuthorities.Add Range:=.Application.Selection.Range, Category:=2, Passim _
+         :=False, KeepEntryFormatting:=True
+     .TablesOfAuthorities(1).TabLeader = wdTabLeaderDots
+     .TablesOfAuthorities.Format = wdIndexIndent
+     
+     
+     ActiveDocument.Application.Selection.Goto What:=wdGoToBookmark, Name:="TOAO" 'other authorities TOA section
+     With ActiveDocument.bookmarks
+         .DefaultSorting = wdSortByName
+         .ShowHidden = False
+     End With
+     
+     .TablesOfAuthorities.Add Range:=.Application.Selection.Range, Category:=3, Passim _
+         :=False, KeepEntryFormatting:=True
+     .TablesOfAuthorities(1).TabLeader = wdTabLeaderDots
+     .TablesOfAuthorities.Format = wdIndexIndent
+     
+       
+    
+End With
+End Function
