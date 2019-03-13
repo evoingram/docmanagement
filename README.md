@@ -29,7 +29,12 @@ Short Function Description:
 		
 	CreateIndexBMKs:  
 		replaces #TOC_# notations in transcript with bookmarks and then places index at bookmarks
-	
+		
+	CreateIndexesTOAs:
+		creates several TOCs that are marked differently and several sections of tables of authority.
+		example: separate TOCs for exhibits, witnesses, and a general index
+			 separate TOAs, three sections, one for cases, one for rules/regs/statutes/code/etc, one for other authority
+		
 	CreateWorkingCopy:
 		creates "working copy" sent to client
 		
