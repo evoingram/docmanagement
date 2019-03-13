@@ -1,0 +1,361 @@
+
+
+Public Function pfUSCRuleScraper()
+On Error Resume Next
+Dim rstCitationHyperlinks As DAO.Recordset
+Dim iErrorNum As Integer, sCHCategory As Integer
+Dim sFindCitation As String, sLongCitation As String, sRuleNumber As String
+Dim sWebAddress As String, sReplaceHyperlink As String, sCurrentRule As String
+Dim sChapterNumber As String, sSubchapterNumber As String, sSubtitleNumber As String
+Dim sSectionNumber As String
+Dim title As String
+Dim oHTTPText As Object
+
+Dim vRuleNumbers() As Variant, vRules() As Variant
+Dim i As Long, j As Long, k As Long, l As Long, m As Long
+Dim w As Long, x As Long, y As Long, z As Long
+
+'============================================================================
+' Name        : pfUSCRuleScraper
+' Author      : Erica L Ingram
+' Copyright   : 2019, A Quo Co.
+' Call command: Call pfUSCRuleScraper()
+' Description:  validates and builds links for all us code, no front matter, no appendices
+'============================================================================
+
+'this code:
+  'builds valid U.S.C. code citations (example ## U.S.C. ###)
+  'builds a corresponding hyperlink
+  'enters those into a table
+
+For x = 1 To 54
+            
+    'build title links
+    
+    'Title 1-54
+    'http://uscode.house.gov/view.xhtml?path=/prelim@title8&edition=prelim
+        
+    'generate variables
+    sCurrentRule = x
+    sFindCitation = "Title " & sCurrentRule
+    sLongCitation = "Title " & sCurrentRule
+    sCHCategory = 2
+    sRuleNumber = sCurrentRule
+    sWebAddress = "http://uscode.house.gov/view.xhtml?path=/prelim@title" & sRuleNumber & "&edition=prelim"
+    sReplaceHyperlink = sFindCitation & "#" & sWebAddress & "#" '"test#http://www.cnn.com#"
+    
+    
+    Set oHTTPText = CreateObject("MSXML2.ServerXMLHTTP")
+    oHTTPText.Open "GET", sWebAddress, False
+    oHTTPText.send ""
+    
+    title = oHTTPText.responseText
+    
+    If InStr(1, UCase(title), "<TITLE>Document Not Found") Then
+        Debug.Print ("Invalid citation, moving on to try next one.")
+        GoTo NextNumber
+    
+    Else
+        'add entry to citationhyperlinks
+        
+        Debug.Print ("Entering " & sFindCitation & " into CitationHyperlinks table.")
+        
+        'add new entry to citaitonhyperlinks table
+        Set rstCitationHyperlinks = CurrentDb.OpenRecordset("CitationHyperlinks")
+        rstCitationHyperlinks.AddNew
+        rstCitationHyperlinks.Fields("FindCitation").Value = sFindCitation
+        rstCitationHyperlinks.Fields("ReplaceHyperlink").Value = sReplaceHyperlink
+        rstCitationHyperlinks.Fields("LongCitation").Value = sLongCitation
+        rstCitationHyperlinks.Fields("WebAddress").Value = sWebAddress
+        rstCitationHyperlinks.Fields("CHCategory").Value = sCHCategory
+        rstCitationHyperlinks.Update
+        
+        
+        
+    End If
+
+    
+            Set oHTTPText = Nothing
+NextNumber:
+    
+    For y = 1 To 300
+        'build related chapter links
+                
+        'Chapter 1-300
+        'http://uscode.house.gov/view.xhtml?path=/prelim@title11/chapter1&edition=prelim
+        
+        'http://uscode.house.gov/view.xhtml?path=/prelim@title11/chapter3&edition=prelim
+        
+        
+        'generate variables
+        sChapterNumber = y
+        sFindCitation = "Chapter " & sChapterNumber
+        sLongCitation = "Chapter " & sChapterNumber
+        sCHCategory = 2
+        sRuleNumber = sCurrentRule
+        sWebAddress = "http://uscode.house.gov/view.xhtml?path=/prelim@title" & sRuleNumber & "/chapter" & sChapterNumber & "&edition=prelim"
+        sReplaceHyperlink = sFindCitation & "#" & sWebAddress & "#" '"test#http://www.cnn.com#"
+    
+        
+        Set oHTTPText = CreateObject("MSXML2.ServerXMLHTTP")
+        oHTTPText.Open "GET", sWebAddress, False
+        oHTTPText.send ""
+        
+        title = oHTTPText.responseText
+        
+        If InStr(1, UCase(title), "<TITLE>Document Not Found") Then
+            Debug.Print ("Invalid citation, moving on to try next one.")
+            GoTo NextNumber1
+        
+        Else
+            'add entry to citationhyperlinks
+            
+            Debug.Print ("Entering " & sFindCitation & " into CitationHyperlinks table.")
+            
+            'add new entry to citaitonhyperlinks table
+            Set rstCitationHyperlinks = CurrentDb.OpenRecordset("CitationHyperlinks")
+            rstCitationHyperlinks.AddNew
+            rstCitationHyperlinks.Fields("FindCitation").Value = sFindCitation
+            rstCitationHyperlinks.Fields("ReplaceHyperlink").Value = sReplaceHyperlink
+            rstCitationHyperlinks.Fields("LongCitation").Value = sLongCitation
+            rstCitationHyperlinks.Fields("WebAddress").Value = sWebAddress
+            rstCitationHyperlinks.Fields("CHCategory").Value = sCHCategory
+            rstCitationHyperlinks.Update
+            
+            
+            
+        End If
+
+    
+            Set oHTTPText = Nothing
+NextNumber1:
+            
+            
+        For z = 1 To 999
+            'build related subchapter links
+                    
+        
+            'subchapter
+            'http://uscode.house.gov/view.xhtml?path=/prelim@title11/chapter3/subchapter1&edition=prelim
+                
+                
+            'generate variables
+            sSubchapterNumber = z
+            sFindCitation = "Subchapter " & sSubchapterNumber
+            sLongCitation = "Subchapter " & sSubchapterNumber
+            sCHCategory = 2
+            sRuleNumber = sCurrentRule
+            sWebAddress = "http://uscode.house.gov/view.xhtml?path=/prelim@title" & sRuleNumber & "/chapter" & sChapterNumber & "/subchapter" & sSubchapterNumber & "&edition=prelim"
+            sReplaceHyperlink = sFindCitation & "#" & sWebAddress & "#" '"test#http://www.cnn.com#"
+        
+            
+            Set oHTTPText = CreateObject("MSXML2.ServerXMLHTTP")
+            oHTTPText.Open "GET", sWebAddress, False
+            oHTTPText.send ""
+            
+            title = oHTTPText.responseText
+            
+            If InStr(1, UCase(title), "<TITLE>Document Not Found") Then
+                Debug.Print ("Invalid citation, moving on to try next one.")
+                GoTo NextNumber2
+            
+            Else
+                'add entry to citationhyperlinks
+                
+                Debug.Print ("Entering " & sFindCitation & " into CitationHyperlinks table.")
+                
+                'add new entry to citaitonhyperlinks table
+                Set rstCitationHyperlinks = CurrentDb.OpenRecordset("CitationHyperlinks")
+                rstCitationHyperlinks.AddNew
+                rstCitationHyperlinks.Fields("FindCitation").Value = sFindCitation
+                rstCitationHyperlinks.Fields("ReplaceHyperlink").Value = sReplaceHyperlink
+                rstCitationHyperlinks.Fields("LongCitation").Value = sLongCitation
+                rstCitationHyperlinks.Fields("WebAddress").Value = sWebAddress
+                rstCitationHyperlinks.Fields("CHCategory").Value = sCHCategory
+                rstCitationHyperlinks.Update
+                
+                
+                
+            End If
+
+    
+            Set oHTTPText = Nothing
+NextNumber2:
+    
+        Next
+    
+            
+    Next
+    
+    For i = 1 To 999
+        'build related subtitle links
+                
+    
+            
+        'subtitle
+        'http://uscode.house.gov/view.xhtml?path=/prelim@title51/subtitle1&edition=prelim
+        'http://uscode.house.gov/view.xhtml?path=/prelim@title26/subtitleG&edition=prelim
+            
+            
+        'generate variables
+        sSubtitleNumber = i
+        sFindCitation = "Subtitle " & sSubchapterNumber
+        sLongCitation = "Subtitle " & sSubchapterNumber
+        sCHCategory = 2
+        sRuleNumber = sCurrentRule
+        sWebAddress = "http://uscode.house.gov/view.xhtml?path=/prelim@title" & sRuleNumber & "/subtitle" & sSubtitleNumber & "&edition=prelim"
+        sReplaceHyperlink = sFindCitation & "#" & sWebAddress & "#" '"test#http://www.cnn.com#"
+    
+    
+    Set oHTTPText = CreateObject("MSXML2.ServerXMLHTTP")
+    oHTTPText.Open "GET", sWebAddress, False
+    oHTTPText.send ""
+    
+    title = oHTTPText.responseText
+    
+    If InStr(1, UCase(title), "<TITLE>Document Not Found") Then
+        Debug.Print ("Invalid citation, moving on to try next one.")
+        GoTo NextNumber3
+    
+    Else
+        'add entry to citationhyperlinks
+        
+        Debug.Print ("Entering " & sFindCitation & " into CitationHyperlinks table.")
+        
+        'add new entry to citaitonhyperlinks table
+        Set rstCitationHyperlinks = CurrentDb.OpenRecordset("CitationHyperlinks")
+        rstCitationHyperlinks.AddNew
+        rstCitationHyperlinks.Fields("FindCitation").Value = sFindCitation
+        rstCitationHyperlinks.Fields("ReplaceHyperlink").Value = sReplaceHyperlink
+        rstCitationHyperlinks.Fields("LongCitation").Value = sLongCitation
+        rstCitationHyperlinks.Fields("WebAddress").Value = sWebAddress
+        rstCitationHyperlinks.Fields("CHCategory").Value = sCHCategory
+        rstCitationHyperlinks.Update
+        
+    End If
+
+    
+            Set oHTTPText = Nothing
+NextNumber3:
+            
+    Next
+
+    Dim vSubtitleLetters As Variant
+    vSubtitleLetters = Array("A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z")
+    For j = 1 To UBound(vSubtitleLetters)
+        'build related subtitle links
+                
+        'subtitle
+        'http://uscode.house.gov/view.xhtml?path=/prelim@title51/subtitle1&edition=prelim
+        'http://uscode.house.gov/view.xhtml?path=/prelim@title26/subtitleG&edition=prelim
+            
+            
+        'generate variables
+        sSubtitleNumber = vSubtitleLetters(j)
+        sFindCitation = "Subtitle " & sSubchapterNumber
+        sLongCitation = "Subtitle " & sSubchapterNumber
+        sCHCategory = 2
+        sRuleNumber = sCurrentRule
+        sWebAddress = "http://uscode.house.gov/view.xhtml?path=/prelim@title" & sRuleNumber & "/subtitle" & sSubtitleNumber & "&edition=prelim"
+        sReplaceHyperlink = sFindCitation & "#" & sWebAddress & "#" '"test#http://www.cnn.com#"
+    
+        
+        Set oHTTPText = CreateObject("MSXML2.ServerXMLHTTP")
+        oHTTPText.Open "GET", sWebAddress, False
+        oHTTPText.send ""
+        
+        title = oHTTPText.responseText
+        
+        If InStr(1, UCase(title), "<TITLE>Document Not Found") Then
+            Debug.Print ("Invalid citation, moving on to try next one.")
+            GoTo NextNumber4
+        
+        Else
+            'add entry to citationhyperlinks
+            
+            Debug.Print ("Entering " & sFindCitation & " into CitationHyperlinks table.")
+            
+            'add new entry to citaitonhyperlinks table
+            Set rstCitationHyperlinks = CurrentDb.OpenRecordset("CitationHyperlinks")
+            rstCitationHyperlinks.AddNew
+            rstCitationHyperlinks.Fields("FindCitation").Value = sFindCitation
+            rstCitationHyperlinks.Fields("ReplaceHyperlink").Value = sReplaceHyperlink
+            rstCitationHyperlinks.Fields("LongCitation").Value = sLongCitation
+            rstCitationHyperlinks.Fields("WebAddress").Value = sWebAddress
+            rstCitationHyperlinks.Fields("CHCategory").Value = sCHCategory
+            rstCitationHyperlinks.Update
+            
+            Set oHTTPText = Nothing
+            
+        End If
+    
+            Set oHTTPText = Nothing
+NextNumber4:
+        
+            
+    Next
+    
+    
+    
+    
+    For k = 1 To 200000
+        'build related section links
+                
+            
+        'Section
+        'http://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title11-section301&num=0&edition=prelim
+        
+        '50 U.S.C. 1549
+        'http://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title50-section1549&num=0&edition=prelim
+            
+            
+        'generate variables
+        sSectionNumber = k
+        sFindCitation = "Section " & sSectionNumber
+        sLongCitation = "Section " & sSectionNumber
+        sCHCategory = 2
+        sRuleNumber = sCurrentRule
+        sWebAddress = "http://uscode.house.gov/view.xhtml?path=/prelim@title" & sRuleNumber & "-section" & sSectionNumber & "&num=0&edition=prelim"
+        sReplaceHyperlink = sFindCitation & "#" & sWebAddress & "#" '"test#http://www.cnn.com#"
+        
+        
+        Set oHTTPText = CreateObject("MSXML2.ServerXMLHTTP")
+        oHTTPText.Open "GET", sWebAddress, False
+        oHTTPText.send ""
+        
+        title = oHTTPText.responseText
+        
+        If InStr(1, UCase(title), "<TITLE>Document Not Found") Then
+            Debug.Print ("Invalid citation, moving on to try next one.")
+            GoTo NextNumber5
+        
+        Else
+            'add entry to citationhyperlinks
+            
+            Debug.Print ("Entering " & sFindCitation & " into CitationHyperlinks table.")
+            
+            'add new entry to citaitonhyperlinks table
+            Set rstCitationHyperlinks = CurrentDb.OpenRecordset("CitationHyperlinks")
+            rstCitationHyperlinks.AddNew
+            rstCitationHyperlinks.Fields("FindCitation").Value = sFindCitation
+            rstCitationHyperlinks.Fields("ReplaceHyperlink").Value = sReplaceHyperlink
+            rstCitationHyperlinks.Fields("LongCitation").Value = sLongCitation
+            rstCitationHyperlinks.Fields("WebAddress").Value = sWebAddress
+            rstCitationHyperlinks.Fields("CHCategory").Value = sCHCategory
+            rstCitationHyperlinks.Update
+            
+            
+            
+        End If
+    
+    
+            Set oHTTPText = Nothing
+NextNumber5:
+        
+            
+    Next
+    
+
+Next
+
+End Function
