@@ -19,7 +19,7 @@ Dim w As Long, x As Long, y As Long, z As Long
 ' Call command: Call pfRCWRuleScraper()
 ' Description:  builds all RCWs and their links, checks for validation, and puts into CitationHyperlinks table
 '============================================================================
-
+'i build a delay in mine by calling a separate function so it requests only once every 22 seconds
 For x = 1 To 91 '(RCW first portion x.###.###) '1-91
     
     sTitle1 = x
