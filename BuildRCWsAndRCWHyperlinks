@@ -1,0 +1,164 @@
+
+
+Public Function pfRCWRuleScraper()
+On Error Resume Next
+Dim sFindCitation As String, sLongCitation As String, sRuleNumber As String
+Dim sWebAddress As String, sReplaceHyperlink As String, sCurrentRule As String
+Dim title As String, sTitle2 As String, sTitle1 As String, sTitle As String
+Dim sTitle3 As String, sCheck As String
+Dim oHTTPText As Object
+Dim vLettersArray1(), vLettersArray2() As Variant
+Dim rstCitationHyperlinks As DAO.Recordset
+Dim iErrorNum As Integer, sCHCategory As Integer
+Dim w As Long, x As Long, y As Long, z As Long
+
+'============================================================================
+' Name        : pfRCWRuleScraper
+' Author      : Erica L Ingram
+' Copyright   : 2019, A Quo Co.
+' Call command: Call pfRCWRuleScraper()
+' Description:  builds all RCWs and their links, checks for validation, and puts into CitationHyperlinks table
+'============================================================================
+
+For x = 1 To 91 '(RCW first portion x.###.###) '1-91
+    
+    sTitle1 = x
+
+    For y = 4 To 999 '(RCW second portion ###.y.###) '1-999
+    
+        sTitle2 = y
+        
+        If y < 10 Then sTitle2 = "0" & sTitle2
+                
+        For z = 10 To 999 '(RCW third portion ###.###.z) '10 to 990 by 10s
+        
+            sTitle3 = z
+            
+            If z < 100 Then sTitle3 = "0" & z
+            
+            'generate variables
+            sCurrentRule = sTitle1 & "." & sTitle2 & "." & sTitle3
+            sFindCitation = "RCW " & sCurrentRule
+            sLongCitation = "RCW " & sCurrentRule
+            sCHCategory = 2
+            sRuleNumber = sCurrentRule
+            sWebAddress = "https://app.leg.wa.gov/RCW/default.aspx?cite=" & sCurrentRule
+            sReplaceHyperlink = sFindCitation & "#" & sWebAddress & "#" '"test#http://www.cnn.com#"
+            
+            
+            Set oHTTPText = CreateObject("MSXML2.ServerXMLHTTP")
+            oHTTPText.Open "GET", sWebAddress, False
+            oHTTPText.send ""
+            
+            title = oHTTPText.responseText
+            sCheck = Left(title, 213)
+            sCheck = Right(sCheck, 12) 'gets full rcw ## from html title if there is one, if it's not in here it's a bad URL/RCW
+            Debug.Print sCheck
+            If InStr(1, UCase(sCheck), sCurrentRule, vbTextCompare) = 0 Then
+            
+                Debug.Print ("RCW " & sCurrentRule & " is a bad RCW; moving on to try next one.")
+                GoTo NextNumber1
+            
+            Else
+            
+                'add entry to citationhyperlinks
+                Debug.Print ("Entering " & sFindCitation & " into CitationHyperlinks table.")
+                
+                'add new entry to citationhyperlinks table
+                Set rstCitationHyperlinks = CurrentDb.OpenRecordset("CitationHyperlinks")
+                rstCitationHyperlinks.AddNew
+                rstCitationHyperlinks.Fields("FindCitation").Value = sFindCitation
+                rstCitationHyperlinks.Fields("ReplaceHyperlink").Value = sReplaceHyperlink
+                rstCitationHyperlinks.Fields("LongCitation").Value = sLongCitation
+                rstCitationHyperlinks.Fields("WebAddress").Value = sWebAddress
+                rstCitationHyperlinks.Fields("CHCategory").Value = sCHCategory
+                rstCitationHyperlinks.Update
+                
+                
+                
+            End If
+
+
+            Set oHTTPText = Nothing
+NextNumber1:
+        Next
+    Next
+Next
+
+
+vLettersArray1 = Array("9A", "23B", "28A", "28B", "28C", "29A", "30A", "30B35A", "50A", "62A", "71A", "79A")
+
+For w = 1 To UBound(vLettersArray1) '(RCW first portion w.###.###)
+
+    sTitle1 = vLettersArray1(w)
+    
+    For x = 1 To 999 '(RCW second portion ###.x.###)
+    
+        If x < 10 Then x = str("0" & x)
+    
+        '1-999 plus A, B, C
+    
+        vLettersArray2 = Array("A", "B", "C")
+        
+        For y = 0 To UBound(vLettersArray2) '(RCW second portion w.x[y].z)
+            
+            sTitle2 = x & vLettersArray2(y)
+        
+            If y < 10 Then sTitle2 = str("0" & sTitle2)
+    
+            For z = 10 To 990 Step 10 '(RCW third portion ###.###.z)
+            
+                If z < 100 Then y = str("0" & z)
+                
+                'generate variables
+                sCurrentRule = sTitle1 & "." & "." & sTitle2 & "." & z
+                sFindCitation = "RCW " & sCurrentRule
+                sLongCitation = "RCW " & sCurrentRule
+                sCHCategory = 2
+                sRuleNumber = sCurrentRule
+                sWebAddress = "https://app.leg.wa.gov/RCW/default.aspx?cite=" & sCurrentRule
+                sReplaceHyperlink = sFindCitation & "#" & sWebAddress & "#" '"test#http://www.cnn.com#"
+                
+                
+                Set oHTTPText = CreateObject("MSXML2.ServerXMLHTTP")
+                oHTTPText.Open "GET", sWebAddress, False
+                oHTTPText.send ""
+                
+                title = oHTTPText.responseText
+                
+                If InStr(1, UCase(sCheck), sCurrentRule, vbTextCompare) = 0 Then
+            
+                Debug.Print ("RCW " & sCurrentRule & " is a bad RCW; moving on to try next one.")
+                GoTo NextNumber2
+            
+            Else
+            
+                'add entry to citationhyperlinks
+                Debug.Print ("Entering " & sFindCitation & " into CitationHyperlinks table.")
+                    
+                'add new entry to citaitonhyperlinks table
+                Set rstCitationHyperlinks = CurrentDb.OpenRecordset("CitationHyperlinks")
+                rstCitationHyperlinks.AddNew
+                rstCitationHyperlinks.Fields("FindCitation").Value = sFindCitation
+                rstCitationHyperlinks.Fields("ReplaceHyperlink").Value = sReplaceHyperlink
+                rstCitationHyperlinks.Fields("LongCitation").Value = sLongCitation
+                rstCitationHyperlinks.Fields("WebAddress").Value = sWebAddress
+                rstCitationHyperlinks.Fields("CHCategory").Value = sCHCategory
+                rstCitationHyperlinks.Update
+                
+                    
+                    
+                End If
+
+    
+                Set oHTTPText = Nothing
+NextNumber2:
+            Next
+
+        Next
+    Next
+Next
+
+
+
+End Function
