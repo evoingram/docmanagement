@@ -41,7 +41,10 @@ Short Function Description:
 	
 	FindAndReplaceCitationHyperlinks:  
 		adds citations and hyperlinks from CitationHyperlinks table in transcript
-	
+		
+	GenerateInvoiceAndEmailWithPPButton:
+		generates invoice and Outlook e-mail body to include a linked PP button
+		
 	GenerateInvoiceNumber:
 		generates invoice number
 		
