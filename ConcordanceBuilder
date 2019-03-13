@@ -1,10 +1,10 @@
 
-Function ConcordanceBuilder()
+Function WordIndexBuilder()
 '============================================================================
-' Name        : ConcordanceBuilder
+' Name        : WordIndexBuilder
 ' Author      : Erica L Ingram
 ' Copyright   : 2019, A Quo Co.
-' Call command: Call ConcordanceBuilder
+' Call command: Call WordIndexBuilder
 ' Description : builds word index in separate PDF from transcript
 '============================================================================
 
