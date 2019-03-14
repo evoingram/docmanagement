@@ -74,7 +74,7 @@ Short Function Description:
 	TCEntryReplacementCHILD-FieldReplaceAll
 		one replace TC entry function for ones with field entry
   	
-	WordIndexBuilder:  
+	WordIndexer:  
 		builds word index in separate docx & PDF from transcript
 		
   	~MySQLExamples
