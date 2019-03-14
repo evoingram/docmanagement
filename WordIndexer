@@ -1,10 +1,10 @@
 
 Function WordIndexBuilder()
 '============================================================================
-' Name        : WordIndexBuilder
+' Name        : WordIndexer
 ' Author      : Erica L Ingram
 ' Copyright   : 2019, A Quo Co.
-' Call command: Call WordIndexBuilder
+' Call command: Call WordIndexer
 ' Description : builds word index in separate docx from transcript
 '============================================================================
 
