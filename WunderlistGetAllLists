@@ -1,0 +1,44 @@
+
+
+
+Function fWunderlistGetLists()
+'============================================================================
+' Name        : fWunderlistGetLists
+' Author      : Erica L Ingram
+' Copyright   : 2019, A Quo Co.
+' Call command: Call fWunderlistGetLists()
+' Description : gets list of all lists on Wunderlist
+'============================================================================
+
+Dim sURL As String, sUserName As String, sResponseText As String
+Dim sToken As String, sJSON As String
+'global variables used here are:  sWLListID
+
+Call fWLGenerateJSONInfo 'refreshes necessary JSON info
+
+'get sUsername/sToken, not provided here
+
+sURL = "https://a.wunderlist.com/api/v1/user"
+
+sJSON = "{" & Chr(34) & "list_id" & Chr(34) & ": " & sWLListID & "}" 'sWLListID is list I.D. number
+
+Debug.Print "sJSON--------------------------------------------"
+Debug.Print sJSON
+Debug.Print "RESPONSETEXT--------------------------------------------"
+    sURL = "https://a.wunderlist.com/api/v1/lists"
+    With CreateObject("WinHttp.WinHttpRequest.5.1")
+        .Open "GET", sURL, False
+        .setRequestHeader "X-Access-Token", sToken
+        .setRequestHeader "X-Client-ID", sUserName
+        .setRequestHeader "Content-Type", "application/json"
+        .send sJSON
+        sResponseText = .responseText
+        sToken = ""
+        sUserName = ""
+        .abort
+        Debug.Print sResponseText
+        Debug.Print "--------------------------------------------"
+    End With
+
+End Function
+
