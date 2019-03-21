@@ -1,0 +1,43 @@
+
+Function fWunderlistGetTasksOnList1()
+'============================================================================
+' Name        : fWunderlistGetTasksOnList1
+' Author      : Erica L Ingram
+' Copyright   : 2019, A Quo Co.
+' Call command: Call fWunderlistGetTasksOnList()
+' Description : gets tasks on a wunderlist list
+'============================================================================
+
+Dim sToken As String, sJSON As String
+Dim sURL As String, sUserName As String, sResponseText As String
+'this function uses global variable strs sWLListID
+
+Call fWLGenerateJSONInfo 'generates json variable info
+
+'get token & username, not provided here
+
+sJSON = "{" & Chr(34) & "list_id" & Chr(34) & ": " & sWLListID & "}" 'sWLListID is the I.D. number of the list
+'a lot of debug prints in case you want to see what's going on 
+Debug.Print "sJSON--------------------------------------------"
+Debug.Print sJSON
+Debug.Print "RESPONSETEXT--------------------------------------------"
+    sURL = "https://a.wunderlist.com/api/v1/tasks?list_id=" & sWLListID
+    With CreateObject("WinHttp.WinHttpRequest.5.1")
+        '.Visible = True
+        .Open "GET", sURL, False
+        .setRequestHeader "X-Access-Token", sToken
+        .setRequestHeader "X-Client-ID", sUserName
+        .setRequestHeader "Content-Type", "application/json"
+        .send sJSON
+        sResponseText = .responseText
+        sToken = ""
+        sUserName = ""
+        Debug.Print sResponseText
+        Debug.Print "--------------------------------------------"
+        Debug.Print .Status
+        Debug.Print .StatusText
+        Debug.Print "--------------------------------------------"
+        .abort
+    End With   
+    
+End Function
