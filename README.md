@@ -21,6 +21,9 @@ Short Function Description:
 	AutoCalculateInterest:
 		add 1% interest cost after every 7 days payment not made
 		
+  	AutoCorrect:
+		adds autocorrect entries as listed on form (from matching table row) to rough draft autocorrect in Word
+		
 	CDLabelMergeF:  
 		makes CD label and prompts for print or no
 		
@@ -56,9 +59,6 @@ Short Function Description:
 	GenericExportandMailMerge:  
 		exports to specified template from T:\Document Generator\Templates and saves in T:\In Progress\sCourtDatesID\
 		
-  	pfAutoCorrect:
-		adds autocorrect entries as listed on form (from matching table row) to rough draft autocorrect in Word
-		
   	ReadXML:  
 		reads shipping XML and sends "Shipped" email to client
 		
@@ -81,7 +81,10 @@ Short Function Description:
 		arguments sTitle as string, sDueDate as string, due date format YYYY-MM-DD
 		adds task to Wunderlist
 		
-	 WunderlistGetList:
+	WunderlistGetAllLists:
+		gets all lists from Wunderlist
+		
+	WunderlistGetList:
 		gets tasks from an existing wunderlist list
 
   	~MySQLExamples
