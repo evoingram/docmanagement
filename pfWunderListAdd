@@ -1,0 +1,70 @@
+
+
+Function fWunderlistAdd(sTitle As String, sDueDate As String)
+'============================================================================
+' Name        : fWunderlistAdd
+' Author      : Erica L Ingram
+' Copyright   : 2019, A Quo Co.
+' Call command: Call fWunderlistAdd(sTitle, sDueDate) 'due date format YYYY-MM-DD
+' Description : adds task to Wunderlist
+'============================================================================
+
+Dim sURL As String, sUserName As String, sResponseText As String
+Dim sJSON As String, sToken As String
+'this function uses global variables lAssigneeID (long), (strs) sDueDate, bCompleted, sWLListID, sTitle
+
+'wunderlist xml add task format is:
+'{
+'  "list_id": 12345,
+'  "title": "Hallo",
+'  "assignee_id": 123,
+'  "completed": true,
+'  "due_date": "2013-08-30",
+'  "starred": false
+'}
+
+Call fWLGenerateJSONInfo 'generates json variable info
+
+'get token & username, not provided here
+
+sJSON = "{" & Chr(34) & _
+    "list_id" & Chr(34) & ": " & sWLListID & "," & Chr(34) & _
+    "title" & Chr(34) & ": " & Chr(34) & sTitle & Chr(34) & "," & Chr(34) & _
+    "assignee_id" & Chr(34) & ": " & lAssigneeID & "," & Chr(34) & _
+    "completed" & Chr(34) & ": " & bCompleted & "," & Chr(34) & _
+    "due_date" & Chr(34) & ": " & Chr(34) & sDueDate & Chr(34) & "," & Chr(34) & _
+    "starred" & Chr(34) & ": " & bStarred & _
+    "}"
+'a lot of debug prints in case you want to see how they interact with each other
+'Debug.Print "sJSON--------------------------------------------"
+'Debug.Print sJSON
+'Debug.Print "RESPONSETEXT--------------------------------------------"
+sURL = "https://a.wunderlist.com/api/v1/tasks"
+
+With CreateObject("WinHttp.WinHttpRequest.5.1")
+    .Open "POST", sURL, False
+    .setRequestHeader "X-Access-Token", sToken
+    .setRequestHeader "X-Client-ID", sUserName
+    .setRequestHeader "Content-Type", "application/json"
+    .send sJSON
+    sResponseText = .responseText
+    sToken = ""
+    sUserName = ""
+    Debug.Print sResponseText
+    Debug.Print "--------------------------------------------"
+    Debug.Print "Status:  " & .Status
+    Debug.Print "--------------------------------------------"
+    Debug.Print "StatusText:  " & .StatusText
+    Debug.Print "--------------------------------------------"
+    Debug.Print "ResponseBody:  " & .responseBody
+    Debug.Print "--------------------------------------------"
+    .abort
+    End With
+    Debug.Print "Task Title:  " & sTitle & "   |   List ID:  " & sWLListID & " " & lAssigneeID
+    Debug.Print "Completed:  " & bCompleted & "   |   Due Date:  " & sDueDate
+    Debug.Print "--------------------------------------------"
+    
+Call pfClearGlobals 'clears all global variables
+
+End Function
+
