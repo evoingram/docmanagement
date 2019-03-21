@@ -76,6 +76,10 @@ Short Function Description:
   	
 	WordIndexer:  
 		builds word index in separate docx & PDF from transcript
+	
+	WunderlistAdd:
+		'arguments sTitle as string, sDueDate as string, due date format YYYY-MM-DD
+		'description: adds task to Wunderlist
 		
   	~MySQLExamples
 		samples of actual queries from my database.
