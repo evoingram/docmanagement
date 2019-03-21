@@ -78,9 +78,12 @@ Short Function Description:
 		builds word index in separate docx & PDF from transcript
 	
 	WunderlistAdd:
-		'arguments sTitle as string, sDueDate as string, due date format YYYY-MM-DD
-		'description: adds task to Wunderlist
+		arguments sTitle as string, sDueDate as string, due date format YYYY-MM-DD
+		adds task to Wunderlist
 		
+	 WunderlistGetList:
+		gets tasks from an existing wunderlist list
+
   	~MySQLExamples
 		samples of actual queries from my database.
   
