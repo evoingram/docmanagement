@@ -1,0 +1,260 @@
+
+
+Function pfHeaders()
+'============================================================================
+' Name        : pfHeaders
+' Author      : Erica L Ingram
+' Copyright   : 2019, A Quo Co.
+' Call command: Call pfHeaders
+' Description : add sections and headers programmatically  (YEP!!!)
+    'gets heading level and heading text and places it in header
+    'breaks doc into sections at each different heading
+    'adds company footer to transcript also
+    'commented lines aren't necessarily correct code.
+'============================================================================
+
+Dim astrHeadings As Variant
+Dim rCurrentSection As Range, HdrRange As Range
+Dim bFound As Boolean
+Dim oWordDoc As New Word.Document, oWordApp As New Word.Application
+Dim sFileName As String, sCurrentSection As String, sCurrentHeading As String
+Dim intItem As Integer, iCurrentSectionNo As Integer, intLevel As Integer
+Dim aStyleList() As String, sStyleName As String
+Dim StyleName As Variant, Header As Variant
+Dim sListStyle As String
+bFound = True
+sCourtDatesID = Forms![NewMainMenu]![ProcessJobSubformNMM].Form![JobNumberField]
+Debug.Print ("---------------------------------------------")
+ReDim aStyleList(1 To 1) As String
+Dim x As Integer, z As Integer, k As Integer
+Dim oHF As HeaderFooter
+Dim iMaxHeadingsCount As Integer
+Dim sec As Word.Section
+
+sFileName = "I:\" & sCourtDatesID & "\Generated\" & sCourtDatesID & "-CourtCover.docx"
+
+Set oWordApp = GetObject(, "Word.Application")
+
+If Err <> 0 Then
+    Set oWordApp = CreateObject("Word.Application")
+End If
+
+Set oWordDoc = GetObject(sFileName, "Word.Document")
+oWordDoc.Application.Visible = True
+
+With oWordDoc.Application
+
+
+    astrHeadings = oWordDoc.GetCrossReferenceItems(wdRefTypeHeading)
+    
+    For intItem = LBound(astrHeadings) To UBound(astrHeadings)
+    
+        sCurrentHeading = astrHeadings(intItem)
+        intLevel = GetLevel(CStr(astrHeadings(intItem)))
+        
+        sStyleName = "Heading " & intLevel
+        
+        Debug.Print ("Heading Level:  " & intLevel & ", " & sCurrentHeading)
+        
+        .Selection.Find.ClearFormatting
+        .Selection.Find.Replacement.ClearFormatting
+        
+        .Selection.Goto What:=wdGoToHeading, which:=wdGoToNext, Count:=1
+        sStyleName = "Heading " & intLevel
+        'aStyleList(intLevel) = sStyleName
+    
+        aStyleList(intItem) = sStyleName
+        sStyleName = "Heading " & intLevel
+        For Each StyleName In aStyleList
+            Debug.Print StyleName
+        Next
+        
+        ReDim Preserve aStyleList(1 To UBound(aStyleList) + 1) As String
+        
+        With .Selection.Find
+            .text = ""
+            .Replacement.text = ""
+            .Forward = True
+            .Wrap = wdFindContinue
+            .Format = False
+            .MatchCase = False
+            .MatchWholeWord = False
+            .MatchWildcards = False
+            .MatchSoundsLike = False
+            .MatchAllWordForms = False
+        End With
+    
+        'Ctrl Page up once
+        .Selection.GoToPrevious wdGoToPage
+        
+        'page down once
+        .browser.Next
+        
+        'press home once
+        .Selection.HomeKey Unit:=wdLine
+        
+        'insert continuous section break
+        'Selection.InsertBreak Type:=wdSectionBreakContinuous
+        .Selection.Paragraphs(1).Range.InsertBreak Type:=wdSectionBreakContinuous
+        
+        '.Selection.HeaderFooter.LinkToPrevious = False
+    
+        .Selection.Find.ClearFormatting
+        .Selection.Find.Replacement.ClearFormatting
+        
+        .Selection.Goto What:=wdGoToHeading, which:=wdGoToNext, Count:=1
+        sStyleName = "Heading " & intLevel
+        
+        With .Selection.Find
+            .text = ""
+            .Replacement.text = ""
+            .Forward = True
+            .Wrap = wdFindContinue
+            .Format = False
+            .MatchCase = False
+            .MatchWholeWord = False
+            .MatchWildcards = False
+            .MatchSoundsLike = False
+            .MatchAllWordForms = False
+        End With
+        Debug.Print ("---------------------------------------------")
+    Next
+    
+    intItem = 1
+    
+    For intItem = 1 To oWordDoc.Sections.Count
+        'add headers to each section
+        SendKeys "^{HOME}"
+        
+        
+        For Each StyleName In aStyleList
+                
+            For Each sec In oWordDoc.Sections
+                                
+                With sec.Headers(wdHeaderFooterPrimary)
+                        
+                    'header formatting
+                    
+                    '.Selection.HeaderFooter.LinkToPrevious = False
+                                       
+                    .LinkToPrevious = False
+                    
+                    
+                End With
+                             
+            Next sec
+            
+        Next StyleName
+                
+    Next
+            
+            
+    oWordDoc.Application.Selection.HomeKey Unit:=wdStory
+    
+    
+            
+    intItem = 2
+    
+    oWordDoc.Application.Selection.Goto What:=wdGoToHeading, which:=wdGoToNext, Count:=1
+    
+    'For intItem = 2 To oWordDoc.Sections.Count + 1
+    
+                       
+        Dim iHeadingsNumber As Integer, iSectionNumber As Integer, iSectionIndex As Integer
+        astrHeadings = oWordDoc.GetCrossReferenceItems(wdRefTypeHeading)
+        
+    
+            For Each sec In oWordDoc.Sections
+            
+                iSectionIndex = sec.index
+                iHeadingsNumber = iSectionIndex - 1
+                iSectionNumber = iSectionIndex
+                        
+                If iHeadingsNumber > UBound(astrHeadings) Then GoTo NextItem
+                
+                If iHeadingsNumber = 0 Then iHeadingsNumber = 1
+                
+                If UBound(astrHeadings) = 0 Then GoTo NextItem
+                
+                sCurrentHeading = astrHeadings(iHeadingsNumber)
+                intLevel = GetLevel(CStr(astrHeadings(iHeadingsNumber)))
+                sStyleName = "Heading " & intLevel
+                
+                iMaxHeadingsCount = UBound(astrHeadings)
+                
+                'add headers to each section
+                        
+                If iSectionNumber <= iMaxHeadingsCount + 1 Then
+                        
+                    sCurrentHeading = astrHeadings(iHeadingsNumber)
+                    intLevel = GetLevel(CStr(astrHeadings(iHeadingsNumber)))
+                    
+                    sStyleName = "Heading " & intLevel
+                                        
+                    iSectionIndex = sec.index
+                    Debug.Print ("Section Number:  " & iSectionIndex & "   |   " & "Headings Number:  " & iHeadingsNumber)
+                    If iSectionNumber = 1 Then GoTo SkipFrontPage
+                                                                 
+                    If ActiveWindow.View.SplitSpecial <> wdPaneNone Then
+                        ActiveWindow.Panes(2).Close
+                    End If
+                    If ActiveWindow.ActivePane.View.Type = wdNormalView Or ActiveWindow. _
+                        ActivePane.View.Type = wdOutlineView Then
+                        ActiveWindow.ActivePane.View.Type = wdPrintView
+                    End If
+                    ActiveWindow.ActivePane.View.SeekView = wdSeekCurrentPageHeader
+                    
+                    With oWordDoc.Application
+                        Selection.TypeText text:="***WORKING COPY***"
+                        Selection.Collapse Direction:=wdCollapseEnd
+                        Selection.TypeParagraph
+                        Selection.InsertCrossReference ReferenceType:="Heading", ReferenceKind:= _
+                            wdContentText, ReferenceItem:=iHeadingsNumber, InsertAsHyperlink:=True, _
+                            IncludePosition:=False, SeparateNumbers:=False, SeparatorString:=" "
+                        
+                        If sStyleName = "Heading 2" Then Selection.TypeText text:=" -- WITNESSNAME"
+                        
+                        Selection.MoveUp Unit:=wdLine, Count:=1, Extend:=wdExtend
+                        Selection.HomeKey Unit:=wdLine, Extend:=wdExtend
+                        Selection.Find.ClearFormatting
+                        With Selection.Find
+                            .text = ""
+                            .Replacement.text = ""
+                            .Forward = True
+                            .Wrap = wdFindContinue
+                            .Format = False
+                            .MatchCase = False
+                            .MatchWholeWord = False
+                            .MatchWildcards = False
+                            .MatchSoundsLike = False
+                            .MatchAllWordForms = False
+                        End With
+                        Selection.style = ActiveDocument.Styles("AQC-Header")
+                    
+                    End With
+                    
+                    oWordDoc.Application.Selection.Goto What:=wdGoToHeading, which:=wdGoToNext, Count:=2
+                    
+                End If
+SkipFrontPage:
+                With sec
+                
+                .Footers(wdHeaderFooterPrimary).Range.text = "www.aquoco.co   |   inquiries@aquoco.co"
+                .Footers(wdHeaderFooterPrimary).Range.ParagraphFormat.Alignment = wdAlignParagraphCenter
+                End With
+                
+            Next sec
+NextItem:
+    'Next intItem
+            
+End With
+
+oWordDoc.SaveAs2 FileName:=sFileName
+oWordDoc.Close
+Set oWordApp = Nothing
+Set oWordDoc = Nothing
+Set rCurrentSection = Nothing
+
+    
+End Function
+
