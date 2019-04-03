@@ -4,6 +4,8 @@ These are sample vba codes for managing Office documents.  Some are dependent on
 
 All code provided as is, no warranty.
 
+I'll be explaining how all this code works and more on my blog at https://transcription.aquoco.co/
+
 Short Function Description:
 
 	 AcrobatGetNumPages:
