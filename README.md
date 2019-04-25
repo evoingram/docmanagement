@@ -7,9 +7,7 @@ All code provided as is, no warranty.
 I'll be explaining how all this code works and more on my blog at https://transcription.aquoco.co/
 
 Hackerrank:  https://www.hackerrank.com/evoingram
-
 Pluralsight: https://app.pluralsight.com/profile/erica-ingram
-
 Company:     https://www.aquoco.co
 
 Working on a portfolio, but here's some of my VBA code for now.  There's a whole bunch of good stuff here.
