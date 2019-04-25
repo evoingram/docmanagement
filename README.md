@@ -4,13 +4,13 @@ These are sample vba codes for managing Office documents.  Some are dependent on
 
 All code provided as is, no warranty.
 
-I'll be explaining how all this code works and more on my blog at https://transcription.aquoco.co/
+I'll be explaining how all this code works and more on my blog at https://transcription.aquoco.co/.  
 
 Hackerrank:  https://www.hackerrank.com/evoingram <br>
 Pluralsight: https://app.pluralsight.com/profile/erica-ingram <br>
 Company:     https://www.aquoco.co <br>
 
-Working on a portfolio, but here's some of my VBA code for now.  There's a whole bunch of good stuff here.
+i'm a self-taught programmer and I'm working on a portfolio, but here's some of my VBA code for now.  There's a whole bunch of good stuff here.
 
 Short Function Description:
 
