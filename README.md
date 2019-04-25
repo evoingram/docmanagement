@@ -10,7 +10,7 @@ Hackerrank:  https://www.hackerrank.com/evoingram <br>
 Pluralsight: https://app.pluralsight.com/profile/erica-ingram <br>
 Company:     https://www.aquoco.co <br>
 
-i'm a self-taught programmer and I'm working on a portfolio, but here's some of my VBA code for now.  There's a whole bunch of good stuff here.
+i'm a self-taught programmer, working on a portfolio, but here's some of my VBA code for now.  There's a whole bunch of good stuff here.
 
 Short Function Description:
 
