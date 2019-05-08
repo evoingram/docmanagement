@@ -1,0 +1,124 @@
+Function fONCreatePage()
+'============================================================================
+' Name        : fONCreatePage
+' Author      : Erica L Ingram
+' Copyright   : 2019, A Quo Co.
+' Call command: Call fONCreatePage()
+' Description : create ON page
+'============================================================================
+Dim sURL As String, sToken As String, sLine4 As String
+Dim Parsed As Dictionary
+Dim sFile1 As String, sFile2 As String, sFile3 As String, sFile4 As String
+Dim sLine1 As String, sLine2 As String, sLine3 As String
+Dim sResponseText As String, apiWaxLRS As String
+Dim sONID As String, sSelfLink As String, sCreatedDateTime As String
+Dim sDisplayName As String, sLastModifiedDateTime As String, isDefault As String
+Dim sUserRole As String, sIsShared As String, sSectionsUrl As String, sSectionGroupsUrl As String
+Dim sCBDisplayName As String, sCBLastModifiedName As String
+Dim sCBLWebURL As String, sIsDefault As String
+Dim sCBID As String
+Dim rep
+Dim sCBLastModifiedID As String, sCBLClientURL As String
+Dim sHTMLPage As String
+'
+sFile1 = "C:\other\6.txt" 'object id / user ID
+sFile2 = "C:\other\7.txt" 'directory tenant id
+sFile3 = "C:\other\8.txt" 'application client id
+sFile4 = "C:\other\9.txt" 'secret
+
+'before auth if you make privilege changes you must visit this website and accept permissions.
+'sState = ""
+'"https://login.microsoftonline.com/" & sLine2 & "adminconsent?client_id=" & sLine3 & "&state=" & sState & "&redirect_uri=https://login.microsoftonline.com/common/oauth2/nativeclient"
+
+Open sFile1 For Input As #1
+Line Input #1, sLine1
+Close #1
+
+Open sFile2 For Input As #2
+Line Input #2, sLine2
+Close #2
+
+Open sFile3 For Input As #3
+Line Input #3, sLine3
+Close #3
+
+Open sFile4 For Input As #4
+Line Input #4, sLine4
+Close #4
+
+sURL = "https://login.microsoftonline.com/" & sLine2 & "/oauth2/v2.0/token"
+
+With CreateObject("WinHttp.WinHttpRequest.5.1")
+    .Open "POST", sURL, False
+    .setRequestHeader "Content-Type", "application/x-www-form-urlencoded"
+    .setRequestHeader "Host", "login.microsoftonline.com"
+    .send ("client_id=" & sLine3 & "&scope=https%3A%2F%2Fgraph.microsoft.com%2F.default&client_secret=" & sLine4 & "&grant_type=client_credentials")
+    .waitForResponse
+    apiWaxLRS = .responseText
+    Debug.Print "--------------------------------------------"
+    .abort
+End With
+
+Set Parsed = JsonConverter.ParseJson(apiWaxLRS)
+sToken = Parsed("access_token")
+sSectionID = ""
+        
+sHTMLPage = "<!DOCTYPE html><html><head>" & _
+    "<title>A page with <i>rendered</i> <b>images</b></title>" & _
+    "<meta name=" & Chr(34) & "created" & Chr(34) & " content=" & Chr(34) & "2015-07-22T09:00:00-08:00" & Chr(34) & " />" & _
+    "</head><body><p>Here's an image from an online source:</p>" & "<img src=" & Chr(34) & _
+    "https://www.aquoco.co/SQUARELOGO.jpg" & Chr(34) & " alt=" & Chr(34) & "an image on the page" & Chr(34) & _
+    " width=" & Chr(34) & "500" & Chr(34) & " />" & "</body></html>"
+
+sURL = "https://graph.microsoft.com/v1.0/users/" & sLine1 & "/onenote/sections/" & sSectionID & "/pages"
+
+With CreateObject("WinHttp.WinHttpRequest.5.1")
+    .Open "POST", sURL, False
+    .setRequestHeader "Authorization", "Bearer " & sToken
+    .setRequestHeader "Content-Type", "text/html"
+    .setRequestHeader "Content-Disposition", "form-data", "name", "Presentation"
+    .send sHTMLPage
+    apiWaxLRS = .responseText
+    sToken = ""
+    sFile2 = ""
+    sFile3 = ""
+    sFile4 = ""
+    sURL = ""
+    sLine1 = ""
+    sLine2 = ""
+    sLine3 = ""
+    sLine4 = ""
+    Debug.Print apiWaxLRS
+    Debug.Print "--------------------------------------------"
+    .abort
+End With
+
+Set Parsed = JsonConverter.ParseJson(apiWaxLRS)
+
+sIsShared = Parsed("@odata.context")
+sONID = Parsed("id")
+sSelfLink = Parsed("self")
+sCreatedDateTime = Parsed("createdDateTime")
+sTitle = Parsed("title")
+scontentUrl = Parsed("contentUrl")
+sLastModifiedDateTime = Parsed("lastModifiedDateTime")
+Set rep1 = Parsed("links")
+Set rep2 = rep1("oneNoteClientUrl")
+sCBLClientURL = rep2("href")
+Set rep3 = rep1("oneNoteWebUrl")
+sCBLWebURL = rep3("href")
+    
+Debug.Print "sIsShared = " & sIsShared
+Debug.Print "sONID = " & sONID
+Debug.Print "sTitle = " & sTitle
+Debug.Print "scontentUrl = " & scontentUrl
+Debug.Print "sSelfLink = " & sSelfLink
+Debug.Print "sCreatedDateTime = " & sCreatedDateTime
+Debug.Print "sLastModifiedDateTime = " & sLastModifiedDateTime
+Debug.Print "sCBLClientURL = " & sCBLClientURL
+Debug.Print "sCBLWebURL = " & sCBLWebURL
+Debug.Print "--------------------------------------------"
+
+
+End Function
+
