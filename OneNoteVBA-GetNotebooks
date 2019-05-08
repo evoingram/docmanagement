@@ -1,0 +1,133 @@
+
+Function fONGetNotebooks()
+
+'============================================================================
+' Name        : fONGetNotebooks
+' Author      : Erica L Ingram
+' Copyright   : 2019, A Quo Co.
+' Call command: Call fONGetNotebooks()
+' Description : get ON notebooks
+'============================================================================
+Dim sURL As String, sToken As String, sLine4 As String
+Dim Parsed As Dictionary
+Dim sFile1 As String, sFile2 As String, sFile3 As String, sFile4 As String
+Dim sLine1 As String, sLine2 As String, sLine3 As String
+Dim sResponseText As String, apiWaxLRS As String
+Dim sONID As String, sSelfLink As String, sCreatedDateTime As String
+Dim sDisplayName As String, sLastModifiedDateTime As String, isDefault As String
+Dim sUserRole As String, sIsShared As String, sSectionsUrl As String, sSectionGroupsUrl As String
+Dim sCBDisplayName As String, sCBLastModifiedName As String
+Dim sCBLWebURL As String, sIsDefault As String
+Dim sJSONResponse As String, sCBID As String
+Dim rep, vDetails, rep1, rep2, rep3, rep4, rep5, rep6, rep7, rep8
+Dim sCBLastModifiedID As String, sCBLClientURL As String
+Dim sState As String
+
+sFile1 = "C:\other\6.txt" 'object id
+sFile2 = "C:\other\7.txt" 'directory tenant id
+sFile3 = "C:\other\8.txt" 'application client id
+sFile4 = "C:\other\9.txt" 'secret
+
+
+'before auth if you make privilege changes you must visit this website and accept permissions.
+'sState = ""
+'"https://login.microsoftonline.com/" & sLine2 & "adminconsent?client_id=" & sLine3 & "&state=" & sState & "&redirect_uri=https://login.microsoftonline.com/common/oauth2/nativeclient"
+
+Open sFile1 For Input As #1
+Line Input #1, sLine1
+Close #1
+
+Open sFile2 For Input As #2
+Line Input #2, sLine2
+Close #2
+
+Open sFile3 For Input As #3
+Line Input #3, sLine3
+Close #3
+
+Open sFile4 For Input As #4
+Line Input #4, sLine4
+Close #4
+
+sURL = "https://login.microsoftonline.com/" & sLine2 & "/oauth2/v2.0/token"
+With CreateObject("WinHttp.WinHttpRequest.5.1")
+    .Open "POST", sURL, False
+    .setRequestHeader "Content-Type", "application/x-www-form-urlencoded"
+    .setRequestHeader "Host", "login.microsoftonline.com"
+    .send ("client_id=" & sLine3 & "&scope=https%3A%2F%2Fgraph.microsoft.com%2F.default&client_secret=" & sLine4 & "&grant_type=client_credentials")
+    .waitForResponse
+    apiWaxLRS = .responseText
+    .abort
+    sToken = ""
+    sFile2 = ""
+    sFile3 = ""
+    sFile4 = ""
+    sURL = ""
+    sLine1 = ""
+    sLine2 = ""
+    sLine3 = ""
+    sLine4 = ""
+End With
+Set Parsed = JsonConverter.ParseJson(apiWaxLRS)
+sToken = Parsed("access_token")
+
+sURL = "https://graph.microsoft.com/v1.0/users/" & sLine6 & "/onenote/notebooks"
+    
+    With CreateObject("WinHttp.WinHttpRequest.5.1")
+        .Open "GET", sURL, False
+        .setRequestHeader "Host", "graph.microsoft.com"
+        .setRequestHeader "Authorization", "Bearer " & sToken
+        .send
+        apiWaxLRS = .responseText
+        Debug.Print apiWaxLRS
+        Debug.Print "--------------------------------------------"
+        .abort
+    End With
+    Set Parsed = JsonConverter.ParseJson(apiWaxLRS)
+    Set vDetails = Parsed("value")
+    For Each rep In vDetails
+        sONID = rep("id")
+        sSelfLink = rep("self")
+        sCreatedDateTime = rep("createdDateTime")
+        sDisplayName = rep("displayName")
+        sLastModifiedDateTime = rep("lastModifiedDateTime")
+        sIsDefault = rep("isDefault")
+        sUserRole = rep("userRole")
+        sIsShared = rep("isShared")
+        sSectionsUrl = rep("sectionsUrl")
+        sSectionGroupsUrl = rep("sectionGroupsUrl")
+        Set rep1 = rep("createdBy")
+        Set rep2 = rep1("user")
+        sCBID = rep2("id")
+        sCBDisplayName = rep2("displayName")
+        Set rep3 = rep("lastModifiedBy")
+        Set rep4 = rep1("user")
+        sCBLastModifiedID = rep4("id")
+        sCBLastModifiedName = rep4("displayName")
+        Set rep5 = rep("links")
+        Set rep6 = rep5("oneNoteClientUrl")
+        sCBLClientURL = rep6("href")
+        Set rep7 = rep("links")
+        Set rep8 = rep5("oneNoteWebUrl")
+        sCBLWebURL = rep8("href")
+        
+        Debug.Print "sONID = " & sONID
+        Debug.Print "sSelfLink = " & sSelfLink
+        Debug.Print "sCreatedDateTime = " & sCreatedDateTime
+        Debug.Print "sDisplayName = " & sDisplayName
+        Debug.Print "sLastModifiedDateTime = " & sLastModifiedDateTime
+        Debug.Print "sIsDefault = " & sIsDefault
+        Debug.Print "sUserRole = " & sUserRole
+        Debug.Print "sIsShared = " & sIsShared
+        Debug.Print "sSectionsUrl = " & sSectionsUrl
+        Debug.Print "sSectionGroupsUrl = " & sSectionGroupsUrl
+        Debug.Print "sCBID = " & sCBID
+        Debug.Print "sCBDisplayName = " & sCBDisplayName
+        Debug.Print "sCBLastModifiedName = " & sCBLastModifiedName
+        Debug.Print "sCBLastModifiedID = " & sCBLastModifiedID
+        Debug.Print "sCBLClientURL = " & sCBLClientURL
+        Debug.Print "sCBLWebURL = " & sCBLWebURL
+        Debug.Print "--------------------------------------------"
+    Next
+    
+End Function
