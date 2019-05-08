@@ -70,6 +70,24 @@ Short Function Description:
 	HeadersFooters:  
 		programmatically adds headers and footers
 		
+	OneNoteVBA-CreatePage:  
+		Creates pages in a specified OneNote notebook
+		
+	OneNoteVBA-GetNotebooks:  
+		Returns list of OneNote notebooks
+		
+	OneNoteVBA-GetPages:  
+		Returns pages of a OneNote notebook
+		
+	OneNoteVBA-GetSectionGroups:  
+		Returns section groups of a OneNote notebook
+		
+	OneNoteVBA-GetSections:  
+		Returns sections of a OneNote notebook
+		
+	OneNoteVBA-SearchPageTitlesReturnResults:  
+		Returns OneNote pages that match a search result
+		
   	ReadXML:  
 		reads shipping XML and sends "Shipped" email to client
 		
