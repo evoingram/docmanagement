@@ -6,6 +6,8 @@ Function fONGetPages()
 ' Copyright   : 2019, A Quo Co.
 ' Call command: Call fONGetPages()
 ' Description : get ON pages
+'blog post explanation at https://transcription.aquoco.co/2019/05/08/using-vba-with-json-onenote/
+'sample database at https://www.aquoco.co/database3.zip
 '============================================================================
 Dim sURL As String, sToken As String, sLine4 As String
 Dim Parsed As Dictionary
