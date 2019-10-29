@@ -6,7 +6,7 @@ All code provided as is, no warranty.
 
 I'll be explaining how all this code works and more on my blog at https://transcription.aquoco.co/.  
 
-Currently Enrolled in Lambda School full-stack web development track.
+Currently Enrolled in Lambda School full-stack web development track.<br>
 freeCodeCamp:https://www.freecodecamp.com/evoingram <br>
 Hackerrank:  https://www.hackerrank.com/evoingram <br>
 Pluralsight: https://app.pluralsight.com/profile/erica-ingram <br>
